@@ -1,0 +1,93 @@
+---
+
+#########################################################
+## Pre-configuration                                   ##
+#########################################################
+
+# Validate variables
+- name: Validate variables for action.
+  ansible.builtin.assert:
+    that: "{{ varitem }} is defined"
+    fail_msg: "Required variable '{{ varitem }}' has not been provided."
+    quiet: true
+  loop_control:
+    loop_var: varitem
+  loop: 
+    - vault_address
+
+# Check if Hashicorp Vault is not initialized via api, get content string and register as vault_init_status
+- name: Check if Vault is not initialized via api
+  ansible.builtin.uri:
+    url: "{{ vault_address }}/v1/sys/init"
+    validate_certs: false # TODO
+    method: GET
+    return_content: yes
+  register: vault_init_status
+  ignore_errors: true
+
+# Get content string from response
+- name: Get content string from response
+  ansible.builtin.set_fact:
+    vault_init_status: "{{ vault_init_status.content }}"
+
+#########################################################
+## Configuration                                       ##
+#########################################################
+
+# Initialize Vault 
+- name: Initialize Vault server
+  ansible.builtin.uri:
+    url: "{{ vault_address }}/v1/sys/init"
+    validate_certs: false
+    method: POST
+    body_format: json
+    body:
+      secret_shares: 5
+      secret_threshold: 2
+  register: vault_init_results 
+  when: vault_init_status.initialized == false
+  
+# Save Vault root token and unseal keys
+- name: Save Vault root token and unseal keys
+  ansible.builtin.set_fact:
+    vault_token: "{{ vault_init_results.json.root_token }}"
+    vault_unseal_keys: "{{ vault_init_results.json.keys_base64 }}"
+  when: vault_init_status.initialized == false
+
+# Save Vault root token to file
+- name: Save Vault root token to file
+  ansible.builtin.copy:
+    content: "{{ vault_token }}"
+    dest: /data/vault/config/vault_token
+    owner: vault
+    group: vault
+    mode: 0600
+  when: vault_init_status.initialized == false
+
+# Save Vault unseal keys to file
+- name: Save Vault unseal keys to file
+  ansible.builtin.copy:
+    content: "{{ vault_unseal_keys }}"
+    dest: /data/vault/config/vault_unseal_keys
+    owner: vault
+    group: vault
+    mode: 0600
+  when: vault_init_status.initialized == false
+
+# Unseal Vault
+- name: Unseal Vault
+  ansible.builtin.include_tasks: unseal.yml
+
+# Enable Vault AppRole
+- name: Enable Hashicorp Vault AppRole
+  ansible.builtin.uri:
+    url: "{{ vault_address }}/v1/sys/auth/approle"
+    validate_certs: false 
+    method: POST
+    status_code: 204
+    headers:
+      X-Vault-Token: "{{ vault_token }}"     
+    body_format: json
+    body:
+      type: "approle"
+      description: "AppRole authentication method for applications"

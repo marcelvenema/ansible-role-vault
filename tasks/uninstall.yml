@@ -1,0 +1,59 @@
+---
+
+#########################################################
+## Uninstall folders                                   ##
+#########################################################
+
+# Check if data_dir exists, else set default
+- name: Check data_dir folder, set default
+  ansible.builtin.set_fact:
+    data_dir: "/data/vault"
+  when: data_dir is not defined or data_dir == "" or data_dir == none
+
+# Remove Vault config folder
+- name: Remove Hashicorp Vault config folder
+  ansible.builtin.file:
+    path: "{{ data_dir }}/config"
+    state: absent
+
+# Remove Vault data folder
+- name: Remove Hashicorp Vault storage folder
+  ansible.builtin.file:
+    path: "{{ data_dir }}/file"
+    state: absent
+
+# Remove Vault log folder
+- name: Remove Hashicorp Vault log folder
+  ansible.builtin.file:
+    path: "{{ data_dir }}/logs"
+    state: absent
+
+#########################################################
+## Uninstall via podman                                ##
+#########################################################
+
+- name: Uninstall via podman
+  when: platform == "podman"
+  block:
+    # Remove Hashicorp Vault container
+    - name: Remove Hashicorp Vault container
+      containers.podman.podman_container:
+        name: vault
+        state: absent
+
+#########################################################
+## Uninstall users/groups                              ##
+#########################################################
+
+# Delete user Vault
+- name: Delete user Vault
+  ansible.builtin.user:
+    name: vault
+    state: absent
+    force: true
+
+# Delete user group vault
+- name: Delete user group vault
+  ansible.builtin.group: 
+    name: "vault"
+    state: absent

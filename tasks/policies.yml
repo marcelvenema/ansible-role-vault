@@ -1,0 +1,123 @@
+---
+
+#########################################################
+## Hashicorp Vault Policies module                     ##
+#########################################################
+
+# Validate global variables
+- name: Validate global variables for Hashicorp Vault policies module.
+  ansible.builtin.assert:
+    that: "{{ varitem }} is defined"
+    fail_msg: "Required variable '{{ varitem }}' has not been provided."
+    quiet: true
+  loop_control:
+    loop_var: varitem
+  loop: 
+    - vault_address
+    - vault_token
+
+#########################################################
+## Get policy                                       ##
+#########################################################
+
+- name: Get Vault policy
+  when: action == "get_policy"
+  block:
+
+    # Register var_result variable
+    - name: Register var_result variable
+      ansible.builtin.set_fact:
+        var_result: "{{ var_result }}"
+      no_log: true
+      when: var_result is not defined
+
+    # Clear variable var_result, be sure it is not used from a previous run.
+    - name: Clear variable var_result
+      ansible.builtin.set_fact:
+        var_result: ""
+      no_log: true
+
+    # Validate local variables
+    - name: Validate variables for Vault get_policy action.
+      ansible.builtin.assert:
+        that: "{{ varitem }} is defined"
+        fail_msg: "Required variable '{{ varitem }}' has not been provided."
+        quiet: true
+      loop_control:
+        loop_var: varitem
+      loop: 
+        - vault_policy_name
+        - vault_policy_rules
+
+#########################################################
+## Create policy                                       ##
+#########################################################
+
+- name: Create Vault policy
+  when: action == "create_policy"
+  block:
+
+    # Validate local variables
+    - name: Validate variables for Vault create_policy action.
+      ansible.builtin.assert:
+        that: "{{ varitem }} is defined"
+        fail_msg: "Required variable '{{ varitem }}' has not been provided."
+        quiet: true
+      loop_control:
+        loop_var: varitem
+      loop: 
+        - vault_policy_name
+        - vault_policy_rules
+
+    # Create Vault policy
+    - name: Create Hashicorp Vault policy
+      ansible.builtin.uri:
+        url: "{{ vault_address }}/v1/sys/policies/acl/{{ vault_policy_name }}_policy"
+        validate_certs: false 
+        method: PUT
+        status_code: 204
+        headers:
+          X-Vault-Token: "{{ vault_token }}"     
+        body_format: json
+        body:
+          policy: "{{ vault_policy_rules }}"
+
+    # Associate Vault policy to AppRole
+    - name: Associate Vault policy to AppRole
+      ansible.builtin.uri:
+        url: "{{ vault_address }}/v1/auth/approle/role/{{ vault_policy_name }}_role"
+        validate_certs: false 
+        method: POST
+        status_code: 204
+        headers:
+          X-Vault-Token: "{{ vault_token }}"     
+        body_format: json
+        body:
+          policies: ["{{ vault_policy_name }}_policy"]
+
+#########################################################
+## Destroy policy                                      ##
+#########################################################
+
+- name: Destroy Vault policy
+  when: action == "destroy_policy"
+  block:
+
+    # Register var_result variable
+    - name: Register var_result variable
+      ansible.builtin.set_fact:
+        var_result: "{{ var_result }}"
+      no_log: true
+      when: var_result is not defined
+
+    # Validate local variables
+    - name: Validate variables for Vault destroy_policy action.
+      ansible.builtin.assert:
+        that: "{{ varitem }} is defined"
+        fail_msg: "Required variable '{{ varitem }}' has not been provided."
+        quiet: true
+      loop_control:
+        loop_var: varitem
+      loop: 
+        - vault_policy_name
+        - vault_policy_rules

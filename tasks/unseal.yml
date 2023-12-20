@@ -1,0 +1,47 @@
+---
+
+#########################################################
+## Unseal                                              ##
+#########################################################
+
+# Validate variables
+- name: Validate variables for action.
+  ansible.builtin.assert:
+    that: "{{ varitem }} is defined"
+    fail_msg: "Required variable '{{ varitem }}' has not been provided."
+    quiet: true
+  loop_control:
+    loop_var: varitem
+  loop:
+    - vault_address
+
+# Check if Vault is sealed
+# Default status codes are:
+#   200 if initialized, unsealed, and active
+#   429 if unsealed and standby
+#   472 if data recovery mode replication secondary and active
+#   501 if not initialized
+#   503 if sealed
+- name: Check if vault is sealed
+  ansible.builtin.uri:
+    url: "{{ vault_address }}/v1/sys/health"
+    validate_certs: false
+    status_code: 200,429,472,501,503
+  register: vault_health_response
+
+# Unseal Vault
+- name: Unseal Vault
+  ansible.builtin.uri:
+    url: "{{ vault_address }}/v1/sys/unseal"
+    validate_certs: false
+    method: PUT
+    body:
+      key: "{{ item }}"
+    body_format: json
+  register: vault_unseal_response
+  with_items:
+    - "{{ vault_unseal_keys }}"
+  when:
+    - vault_health_response.status == 503
+    - vault_health_response.status != 501
+    - vault_unseal_keys is defined
