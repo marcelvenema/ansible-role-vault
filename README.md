@@ -7,16 +7,14 @@ Ansible role voor installatie en configuratie van Hashicorp Vault.<br/>
 Afhankelijk van de infrastructuur wordt deze als Podman pod (docker container), kubernetes container of direct op het besturingssysteem geinstalleerd.<br/>
 Vooralsnog is alleen installatie en configuratie als Podman pod beschikbaar.<br/>
 <br/>
+
 Website leverancier: `https://vaultproject.io`<br/>
-<br/>
 <br/>
 
 
 ***
 
 # Diensten:
-
-## Installatie en configuratie Hashicorp Vault
 
 
 action: **install**<br/>
@@ -49,10 +47,6 @@ variables:<br/>
 <kbd>vault_unseal_keys</kbd> : Unseal keys van Vault. Dit zijn de keys die zijn gegenereerd tijdens de installatie.<br/>
 
 
-
-<br/>
-## Secrets
-
 action: **create_secret_engine**<br/>
 Nader in te vullen.<br/>
 variables:<br/>
@@ -61,7 +55,6 @@ variables:<br/>
 <kbd>vault_name</kbd> : naam secret engine.<br/>
 <kbd>vault_description</kbd> : omschrijving van secret engine.<br/>
 <kbd>vault_type</kbd> : secret engine type, bijvoorbeeld `kv`, `pki`.<br/>
-
 
 
 action: **destroy_secret_engine**<br/>
@@ -93,6 +86,7 @@ Nader in te vullen.<br/>
 variables:<br/>
 <kbd>(geen)</kbd> : Geen variabelen benodigd.<br/>
 
+
 action: **export_secrets**<br/>
 Exporteer secrets uit Vault naar een bestand.<br/>
 variables:<br/>
@@ -103,13 +97,68 @@ variables:<br/>
 <kbd>file_name</kbd> : Bestandsnaam voor export secrets.<br/>
 
 
-<br/>
+Voorbeeld:
+```
+
+# Export Vault secret to json file
+- name: Export secrets from Vault
+  hosts: localhost
+  roles:
+   - role: vault
+     vars:
+      action        : export_secrets
+      vault_address : "http://192.168.29.20:8200"
+      vault_token   : "hvs.9MGoUtPEGZWRgLX3dxZYkqxV"
+      vault_name    : "os_template_factory"
+      secret_name   : "windowsserver2022"
+      filename      : "secrets_windowsserver2022.json"
+
+```
+
+***
+
+- **changelog**<br/>
+  Wijzigingen logboek.<br/>
+  Zie [changelog](CHANGELOG.md)<br/>
+
+
+
+- **roadmap**<br/>
+  Visie en toekomstige ontwikkelingen.<br/>
+  Zie [roadmap](ROADMAP.md)<br/>
+
+
+***
+
+
+## Voorbereidingen
+(geen).<br/>
+
+
+
+## Afhankelijkheden
+Afhankelijkheden zijn benoemd in het **requirements.yml** bestand. Gebruik `ansible-galaxy install ./requirements.yml --force` voor installatie.<br/>
+
+
+
+## Installatie
+Geen installatie benodigd.<br/>
+
+
+
+## Configuratie
+(geen).<br/>
+
+
+
 ## Overige informatie
+(geen).<br/>
 
 
 
 ## Licentie
 MIT
+
 
 
 ## Auteur
