@@ -1,6 +1,6 @@
 # Hashicorp Vault
 
-<table>
+<table border="0">
   <tr>
     <td width="140px"><img src="media/icon_vault.png" align="left" height="128" width="128" /></td>
     <td>Ansible role voor installatie en configuratie van Hashicorp Vault.<br/>
