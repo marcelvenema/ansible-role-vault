@@ -1,0 +1,7 @@
+skip_list:
+  - '303'
+  - '403'
+  - '306'
+  - 'role-name'
+  - yaml[trailing-spaces] 
+  - var-naming[no-role-prefix]
