@@ -2,8 +2,8 @@
 
 <table border="0">
   <tr>
-    <td width="160px"><img src="media/icon_vault.png" align="left" height="128" width="128" /></td>
-    <td>Ansible role voor installatie en configuratie van Hashicorp Vault.<br/>
+    <td width="160px" valign="top"><img src="media/icon_vault.png" align="left" height="128" width="128" /></td>
+    <td>Ansible role voor installatie, configuratie, gebruik en beheer van Hashicorp Vault.<br/>
         Afhankelijk van de infrastructuur wordt deze als Podman pod (docker container), kubernetes container of direct op het besturingssysteem geinstalleerd.<br/>
         Vooralsnog is alleen installatie en configuratie als Podman pod beschikbaar.<br/>
         <br/>

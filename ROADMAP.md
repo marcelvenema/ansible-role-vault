@@ -1,4 +1,6 @@
-# Visie
+# Visie en Roadmap
+
+## Visie
 
 
 <img src="media/icon_vault.png" align="left" height="128" width="128" />
@@ -14,7 +16,7 @@ Naast installatie en configuratie zijn ook diensten beschikbaar voor het opslaan
 
 
 
-# Roadmap
+## Roadmap
 
 
 
