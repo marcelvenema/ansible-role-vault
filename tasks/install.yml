@@ -26,14 +26,14 @@
 - name: Override platform check if platform variable is defined.
   ansible.builtin.set_fact:
     platform_check: false
-  when: platform is defined
+  when: platform is undefined
 
 # Set platform if podman is detected
 - name: Set platform if podman is detected
   ansible.builtin.set_fact:
     platform: "podman"
   when:
-    - platform_check is not defined
+    - platform_check is not defined 
     - '"podman" in ansible_facts.packages'
 
 # Set platform if kubernetes is detected
@@ -132,6 +132,17 @@
     mode: 0766
 
 #########################################################
+## Pre-installation configuration                      ##
+#########################################################
+
+# Create Hashicorp Vault configuration
+- name: Create Hashicorp Vault configuration
+  ansible.builtin.template:
+    src: ./templates/vault.podman_config.hcl.j2
+    dest: "{{ data_dir }}/config/vault.hcl"
+    owner: vault
+
+#########################################################
 ## Installation                                        ##
 #########################################################
 
@@ -210,17 +221,6 @@
     - name: Parse image info, select container image id
       ansible.builtin.set_fact:
         image_id: "{{ images_info.images | selectattr('RepoTags', 'search', 'vault') | map(attribute='Id') | first }}"
-
-    ##################################
-    # Create Vault configuration     #
-    ##################################
-
-    # Create Hashicorp Vault configuration
-    - name: Create Hashicorp Vault configuration
-      ansible.builtin.template:
-        src: ./templates/vault.podman_config.hcl.j2
-        dest: /data/vault/config/vault.hcl
-        owner: vault
 
     ##################################
     # Create Vault container         #
@@ -351,15 +351,30 @@
   when: platform == "host"
   block:
 
-    # Debug message
-    - name: Debug message
-      ansible.builtin.debug:
-        msg: "Install Hashicorp Vault on host"
-  
-    # Show information message
-    - name: This part is not (yet) implemented.
-      ansible.builtin.debug:
-        msg: "This part is not (yet) implemented."
+    # Download Hashicorp Vault from url
+    - name: "Download Hashicorp Vault from {{ repository_url }}"
+      ansible.builtin.get_url:
+        url: "{{ repository_url }}"
+        dest: /tmp/vault.zip
+        mode: 0755
+        validate_certs: false
+      register: repository_url_result 
+
+    # Unzip Hashicorp Vault
+    - name: "Unzip Hashicorp Vault"
+      ansible.builtin.unarchive:
+        src: /tmp/vault.zip
+        dest: /usr/local/bin
+
+    # Autostart Vault on system boot
+    - name: Generate systemd unit file for Vault
+      ansible.builtin.template:
+        src: ./templates/vault.service.j2
+        dest: /etc/systemd/system/vault.service
+        owner: root
+        mode: 0644
+
+
 
     # Stop playbook
     - name: Stop playbook
@@ -368,6 +383,8 @@
 #########################################################
 ## Configuration                                       ##
 #########################################################
+
+
 
 # Register vault_address
 # TODO
