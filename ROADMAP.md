@@ -20,5 +20,7 @@ Naast installatie en configuratie zijn ook diensten beschikbaar voor het opslaan
 
 
 
-## Export en Import van secrets
+**Export en Import van secrets**
 De dienst export_secrets vanaf een secret engine naar een json bestand en import_secrets voor vice-versa, dient meer robuust gemaakt te worden zodat deze productiegereed is.<br/>
+**PKI certificaten**
+In de Vault kunnen PKI certificaten worden opgeslagen en uitgegeven.
