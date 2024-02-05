@@ -1,5 +1,5 @@
 - name: Install and configure Hashicorp Vault (no roles)
-  hosts: lab
+  hosts: localhost
   become: true
   tasks:
 
