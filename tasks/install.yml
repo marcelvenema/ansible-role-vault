@@ -48,6 +48,7 @@
     platform: "kubernetes"
   when:
     - '"kubernetes" in ansible_facts.packages'
+    - '"podman" not in ansible_facts.packages'
     - platform_check == true
 
 # Set platform to host if no podman or no kubernetes is detected
@@ -56,6 +57,7 @@
     platform: "host"
   when:
     - '"kubernetes" not in ansible_facts.packages'
+    - '"podman" not in ansible_facts.packages'
     - platform_check == true
 
 #########################################################
