@@ -25,19 +25,14 @@
 # Override platform check if platform variable is defined.
 - name: Override platform check if platform variable is defined.
   ansible.builtin.set_fact:
-    platform_check: true
-  when: platform is undefined
-
-# Override platform check if platform variable is defined.
-- name: Override platform check if platform variable is defined.
-  ansible.builtin.set_fact:
-    platform_check: false
-  when: platform is defined
+    platform_check: true 
+  when: platform is undefined or platform_check == ""
 
 # Set platform if podman is detected
 - name: Set platform if podman is detected
   ansible.builtin.set_fact:
     platform: "podman"
+    platform_check: false
   when:
     - '"podman" in ansible_facts.packages'
     - platform_check == true
@@ -46,9 +41,9 @@
 - name: Set platform if kubernetes is detected
   ansible.builtin.set_fact:
     platform: "kubernetes"
+    platform_check: false
   when:
     - '"kubernetes" in ansible_facts.packages'
-    - '"podman" not in ansible_facts.packages'
     - platform_check == true
 
 # Set platform to host if no podman or no kubernetes is detected
@@ -56,10 +51,13 @@
   ansible.builtin.set_fact:
     platform: "host"
   when:
-    - '"kubernetes" not in ansible_facts.packages'
-    - '"podman" not in ansible_facts.packages'
     - platform_check == true
 
+# Clear variable
+- name: Clear platform_check variable
+  ansible.builtin.set_fact:
+    platform_check: undefined 
+  
 #########################################################
 ## Pre-installation uninstall                          ##
 #########################################################
