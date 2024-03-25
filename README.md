@@ -21,8 +21,8 @@ Installatie van laatste versie van Hashicorp Vault. Basis configuratie.<br/>
 variables:<br/>
 <kbd>repository_url</kbd> : URL met locatie van container repository. Kan een url zijn of pad naar lokaal bestand.<br/>
 <kbd>repository_tag (optioneel)</kbd> : Release of versienummer van het image. Standaard is 'latest'.<br/>
-<kbd>repository_checksum (optioneel)</kbd> : checksum van het lokale bestand.
-<kbd>repository_checksum_algorithm (optioneel)</kbd> : sha256, sha1, sha512.
+<kbd>repository_checksum (optioneel)</kbd> : checksum van het lokale bestand.<br/>
+<kbd>repository_checksum_algorithm (optioneel)</kbd> : sha256, sha1, sha512.<br/>
 <kbd>platform (optioneel)</kbd> : installeer op specifiek platform, bijvoorbeeld podman, kubernetes, linux. Standaard is autodetect.<br/>
 <kbd>uninstall (optioneel)</kbd> : true/false. Wanneer, true wordt voor installatie eerst uninstall gestart.<br/>
 
