@@ -195,6 +195,7 @@
       register: pull_result
       ignore_errors: true
 
+    # If pull failed, try to use local file
     - name: Install local image file
       when: pull_result is failed
       block:
@@ -206,18 +207,35 @@
           register: repository_url_result
           delegate_to: localhost
 
+        # Copy image file to destination if local file
+        - name: Copy Vault container image file to destination
+          ansible.builtin.copy:
+            src: "{{ repository_url }}"
+            dest: "/tmp/vault.tar"
+          when: 
+            - repository_url_result.stat.exists == true
+
+        # download local file if http or https
+        - name: "Download file from {{ repository_url }}"
+          ansible.builtin.get_url:
+            url: "{{ repository_url }}"
+            dest: "/tmp/vault.tar"
+          when: 
+            - '"http" in repository_url'
+            - '"ftp" in repository_url'
+        
+        # check if /tmp/vault.tar exists
+        - name: Check if /tmp/vault.tar exists
+          ansible.builtin.stat:
+            path: "/tmp/vault.tar"
+          register: vault_tar_result
+
         # Fail if image file not found
         - name: Fail if Vault container image file not found
           ansible.builtin.fail:
             msg: "Repository URL {{ repository_url }} not found. Container image file location not found. Cannot continue..."
           when: 
-            - repository_url_result.stat.exists == false
-
-        # Copy image file to destination
-        - name: Copy Vault container image file to destination
-          ansible.builtin.copy:
-            src: "{{ repository_url }}"
-            dest: "/tmp/vault.tar"
+            - vault_tar_result.stat.exists == false
 
         # Load image from file if pull failed
         - name: Import container image to podman
