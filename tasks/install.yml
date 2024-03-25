@@ -22,6 +22,12 @@
   ansible.builtin.package_facts:
     manager: auto
 
+# Set platform_check variable
+- name: Set platform check variable
+  ansible.builtin.set_fact:
+    platform_check: ""
+  when: platform_check is undefined
+
 # Override platform check if platform variable is defined.
 - name: Override platform check if platform variable is defined.
   ansible.builtin.set_fact:
@@ -175,6 +181,8 @@
     ##################################
     # Import container image         # 
     ##################################
+    # Pull container image, if failed try to use local file
+    # local file can be http, https, ftp or local file
 
     # If tag is not defined, set value to latest
     - name: Validate repository_tag, set default
@@ -200,7 +208,18 @@
       when: pull_result is failed
       block:
 
-        # repository_url is a local container file, check if file exists on ansible host
+        # Show information message
+        - name: Show information message
+          ansible.builtin.debug:
+            msg: "Cannot pull from container repository, trying to load from file..."
+
+        # Delete local file /tmp/vault.tar
+        - name: Delete local file /tmp/vault.tar
+          ansible.builtin.file:
+            path: /tmp/vault.tar
+            state: absent
+
+        # Check if file exists on ansible host
         - name: Check if repository_url is a local container file
           ansible.builtin.stat:
             path: "{{ repository_url }}"
@@ -215,14 +234,12 @@
           when: 
             - repository_url_result.stat.exists == true
 
-        # download local file if http or https
+        # Download local file if http or https
         - name: "Download file from {{ repository_url }}"
           ansible.builtin.get_url:
             url: "{{ repository_url }}"
             dest: "/tmp/vault.tar"
-          when: 
-            - '"http" in repository_url'
-            - '"ftp" in repository_url'
+          when: ("http" in repository_url) or ("ftp" in repository_url)
         
         # check if /tmp/vault.tar exists
         - name: Check if /tmp/vault.tar exists
@@ -236,6 +253,27 @@
             msg: "Repository URL {{ repository_url }} not found. Container image file location not found. Cannot continue..."
           when: 
             - vault_tar_result.stat.exists == false
+
+        ##################################
+        # Checksum image                 # 
+        ##################################
+
+        # Get checksum of /tmp/vault.tar
+        - name: Get checksum of local Vault container file
+          ansible.builtin.stat:
+            path: /tmp/vault.tar
+            checksum_algorithm: "{{ repository_checksum_algorithm }}"
+            get_checksum: yes
+          register: checksum_result
+          when : repository_checksum is defined 
+
+        # Fail when checksum is not the same
+        - name: Fail when checksum is not correct
+          ansible.builtin.fail:
+            msg: "Checksum of /tmp/vault.tar ({{ checksum_result.stat.checksum }}) is not the same as the provided checksum ({{ repository_checksum }}). Cannot continue..."
+          when: 
+            - repository_checksum is defined
+            - checksum_result.stat.checksum != repository_checksum
 
         # Load image from file if pull failed
         - name: Import container image to podman
