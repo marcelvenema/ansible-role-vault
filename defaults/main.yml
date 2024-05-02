@@ -1,0 +1,12 @@
+---
+
+repository_url: "docker.io/hashicorp/vault"
+# repository_url can be an url to docker image or a tar file. example: "docker.io/sonatype/nexus3" or "/tmp/nexus3.67.1.tar", "https://192.168.1.1/repo/nexus.tar".
+# repository_tag can be a tag of the image or a version of the tar file. example: "3.67.1" or "latest".
+# repository_checksum can be a checksum of the container file. example: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" or "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".
+# repository_checksum_algorithm can be a checksum algorithm of the container file. example: "sha256", sha512", "md5".
+
+container_name: "vault"
+container_ports: ["8200:8200"]
+container_volumes: ["/data/vault/config:/vault/config:Z", "/data/vault/file:/vault/file:Z", "/data/vault/logs:/vault/logs:Z"]
+data_dir: "/data/vault"

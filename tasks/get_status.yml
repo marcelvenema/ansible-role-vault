@@ -1,0 +1,35 @@
+---
+
+#########################################################
+## Get status                                          ##
+#########################################################
+# If action variable is not defined, gather status of the service
+# If service not installed, set action to install. 
+# If the service is not started, set action to start.
+
+# Gather installed packages
+- name: Gather installed packages
+  ansible.builtin.package_facts:
+    manager: auto
+
+# Podman is installed
+- name: Podman is detected...
+  when: '"podman" in ansible_facts.packages'
+  block:
+
+    # List containers from podman
+    - name: Gather containers from podman...
+      ansible.builtin.shell: "podman ps --all --filter name={{ container_name }}"
+      register: podman_containers
+
+    # Set action variable
+    - name: Set action variable
+      set_fact:
+        action: "install"
+      when: '" {{container_name }} " not in podman_containers.stdout_lines'
+
+    # Set action variable
+    - name: Set action variable
+      set_fact:
+        action: "start"
+      when: '"Excited" in podman_containers.stdout_lines'

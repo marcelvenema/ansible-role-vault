@@ -1,9 +1,9 @@
 --- 
 
-- name: Set wait
-  ansible.builtin.set_fact:
-    wait: false
-  when: wait is not defined
+# If action variable is not defined, gather status of the service and set action variable  
+- name: Determine action variable status
+  ansible.builtin.include_tasks: get_status.yml
+  when: action is not defined
 
 - name: Verify variable input
   ansible.builtin.assert:
@@ -27,6 +27,14 @@
 - name: Update Hashicorp Vault
   ansible.builtin.include_tasks: update.yml
   when: action == "update"
+
+- name: Start Hashicorp Vault
+  ansible.builtin.include_tasks: start.yml
+  when: action == "start"
+
+- name: Stop Hashicorp Vault
+  ansible.builtin.include_tasks: stop.yml
+  when: action == "stop"
 
 - name: Unseal Vault
   ansible.builtin.include_tasks: unseal.yml
@@ -91,4 +99,3 @@
 - name: Destroy AppRole for Vault
   ansible.builtin.include_tasks: approles.yml
   when: action == "destroy_approle"
-

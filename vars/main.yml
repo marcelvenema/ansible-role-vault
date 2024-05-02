@@ -17,6 +17,10 @@ actions:
   - configure_description : "Configureer Vault. Maak een token en unseal keys aan. Unseal Vault."
   - configure_icon : "media/icon_vault.png"
 
+  - start
+
+  - stop 
+
   # ----------------------------------------
   - get_secret_engine
   - get_secret_engine_description : "Haal de configuratie van een secret engine op."

@@ -15,15 +15,14 @@
 
 # Diensten:
 
-
 action: **install**<br/>
 Installatie van laatste versie van Hashicorp Vault. Basis configuratie.<br/>
 variables:<br/>
-<kbd>repository_url</kbd> : URL met locatie van container repository. Kan een url zijn of pad naar lokaal bestand.<br/>
+<kbd>repository_url</kbd> : URL met locatie van container repository. Kan een url zijn of pad naar lokaal of remote bestand, bijvoorbeeld 'docker.io/hashicorp/vault', '/tmp/vault.tar', 'https://192.168.1.1/repo/vault1.14.tar'. Standaard verwijst naar docker.io/hashicorp/vault via defaults/main.yml.<br/>
 <kbd>repository_tag (optioneel)</kbd> : Release of versienummer van het image. Standaard is 'latest'.<br/>
-<kbd>repository_checksum (optioneel)</kbd> : checksum van het lokale bestand.<br/>
-<kbd>repository_checksum_algorithm (optioneel)</kbd> : sha256, sha1, sha512.<br/>
-<kbd>platform (optioneel)</kbd> : installeer op specifiek platform, bijvoorbeeld podman, kubernetes, linux. Standaard is autodetect.<br/>
+<kbd>repository_checksum (optioneel)</kbd> : checksum van het container image. Voorbeeld: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" of "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".<br/>
+<kbd>repository_checksum_algorithm (optioneel)</kbd> : algoritme voor de checksum, bijvoorbeeld sha256, sha512, md5, etc.<br/>
+<kbd>platform (optioneel)</kbd>  : installeer op specifiek platform, bijvoorbeeld podman, kubernetes, host. Standaard is autodetect. (podman, kubernetes, host)<br/>
 <kbd>uninstall (optioneel)</kbd> : true/false. Wanneer, true wordt voor installatie eerst uninstall gestart.<br/>
 
 
@@ -36,9 +35,23 @@ variables:<br/>
 action: **update**<br/>
 Update Hashicorp Vault naar de laatste versie. (backlog).<br/>
 variables:<br/>
-<kbd>repository_url</kbd> : URL met locatie van container repository. Kan een url zijn of pad naar lokaal bestand.<br/>
+<kbd>repository_url</kbd> : URL met locatie van container repository. Kan een url zijn of pad naar lokaal of remote bestand, bijvoorbeeld 'docker.io/hashicorp/vault', '/tmp/vault.tar', 'https://192.168.1.1/repo/vault1.14.tar'. Standaard verwijst naar docker.io/hashicorp/vault via defaults/main.yml.<br/>
 <kbd>repository_tag (optioneel)</kbd> : Release of versienummer van het image. Standaard is 'latest'.<br/>
-<kbd>platform (optioneel)</kbd> : installeer op specifiek platform, bijvoorbeeld podman, kubernetes, linux. Standaard is autodetect.<br/>
+<kbd>repository_checksum (optioneel)</kbd> : checksum van het container image. Voorbeeld: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" of "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".<br/>
+<kbd>repository_checksum_algorithm (optioneel)</kbd> : algoritme voor de checksum, bijvoorbeeld sha256, sha512, md5, etc.<br/>
+<kbd>platform (optioneel)</kbd>  : installeer op specifiek platform, bijvoorbeeld podman, kubernetes, host. Standaard is autodetect. (podman, kubernetes, host)<br/>
+
+
+action: **start**<br/>
+Start van Hashicorp Vault service. (backlog).<br/>
+variablen:<br/>
+<kbd>(geen)</kbd> : Geen variabelen benodigd.<br/>
+
+
+action: **stop**<br/>
+Stop van Hashicorp Vault service. (backlog).<br/>
+variablen:<br/>
+<kbd>(geen)</kbd> : Geen variabelen benodigd.<br/>
 
 
 action: **unseal**<br/>
@@ -47,6 +60,24 @@ variables:<br/>
 <kbd>vault_address</kbd> : URL naar Vault, bijvoorbeeld `https://192.168.1.0:8200`.<br/>
 <kbd>vault_unseal_keys</kbd> : Unseal keys van Vault. Dit zijn de keys die zijn gegenereerd tijdens de installatie.<br/>
 
+
+Wanneer variable action niet is ingevuld, wordt gedetecteerd of Nexus Repository OSS al is geinstalleerd. Zo nee, wordt aan action waarde **install** toegekend. Zo ja, wordt aan action waarde **start** toegekend.<br/>   
+
+
+Voorbeeld:
+```
+---
+- hosts: lab_server
+  vars:
+  roles:
+    - role: vault
+      vars:
+        action        : install
+        repository_url: "\tmp\vault.tar"
+
+```
+
+## Secret Engines
 
 action: **create_secret_engine**<br/>
 Nader in te vullen.<br/>
@@ -123,7 +154,6 @@ Voorbeeld:
   Zie [changelog](CHANGELOG.md)<br/>
 
 
-
 - **roadmap**<br/>
   Visie en toekomstige ontwikkelingen.<br/>
   Zie [roadmap](ROADMAP.md)<br/>
@@ -131,10 +161,8 @@ Voorbeeld:
 
 ***
 
-
 ## Voorbereidingen
 (geen).<br/>
-
 
 
 ## Afhankelijkheden
@@ -144,23 +172,32 @@ Indien deze role in andere playbooks of Ansible projecten wordt gebruikt, dient 
 <br/>
 
 ## Installatie
-Geen installatie benodigd.<br/>
+Installatie via action 'install'.<br/>
+Voorbeeld voor installatie Hashicorp Vault:
 
+```
+---
+- hosts: localhost
+  vars:
+  roles:
+    - role: vault
+      vars:
+        action        : install
+        repository_url: "\tmp\vault.tar"
+
+```
 
 
 ## Configuratie
 (geen).<br/>
 
 
-
 ## Overige informatie
 (geen).<br/>
 
 
-
 ## Licentie
 MIT
-
 
 
 ## Auteur

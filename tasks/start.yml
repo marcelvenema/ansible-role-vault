@@ -1,0 +1,11 @@
+---
+
+# Show information message
+- name: This part is not (yet) implemented.
+  ansible.builtin.debug:
+    msg: "This part is not (yet) implemented."
+
+# Stop playbook
+- name: Stop playbook
+  ansible.builtin.meta: end_play
+  
