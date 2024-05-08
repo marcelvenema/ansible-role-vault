@@ -29,7 +29,7 @@ variables:<br/>
 action: **uninstall**<br/>
 De-installatie van Hashicorp Vault.<br/>
 variables:<br/>
-<kbd>(geen)</kbd> : Geen variabelen benodigd.<br/>
+<kbd>keep_data (optioneel)</kbd> : true/false. Wanneer true, wordt bij uninstall data folders bewaard. Standaard false.<br/>
 
 
 action: **update**<br/>

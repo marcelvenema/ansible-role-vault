@@ -1,45 +1,95 @@
 ---
 
 #########################################################
-## Uninstall folders                                   ##
+## Uninstall action                                    ##
+#########################################################
+# Uninstall action 
+# variables: 
+#   - container_name: Name of the container to uninstall
+#   - container_volumes: Volumes folders of the container to uninstall
+#   - keep_data: true/false. Keep data when uninstalling. Default false.
+
+#########################################################
+## Uninstall configuration                             ##
 #########################################################
 
-# Check if data_dir exists, else set default
-- name: Check data_dir folder, set default
-  ansible.builtin.set_fact:
-    data_dir: "/data/vault"
-  when: data_dir is not defined or data_dir == "" or data_dir == none
-
-# Remove Vault config folder
-- name: Remove Hashicorp Vault config folder
-  ansible.builtin.file:
-    path: "{{ data_dir }}/config"
-    state: absent
-
-# Remove Vault data folder
-- name: Remove Hashicorp Vault storage folder
-  ansible.builtin.file:
-    path: "{{ data_dir }}/file"
-    state: absent
-
-# Remove Vault log folder
-- name: Remove Hashicorp Vault log folder
-  ansible.builtin.file:
-    path: "{{ data_dir }}/logs"
-    state: absent
-
+# Set keep_data if not defined
+- name: Set keep_data if not defined
+  set_fact:
+    keep_data: false
+  when: keep_data is not defined
+  
 #########################################################
 ## Uninstall via podman                                ##
 #########################################################
 
-- name: Uninstall via podman
+- name: "Uninstall {{ container_name }} on podman"
   when: platform == "podman"
   block:
-    # Remove Hashicorp Vault container
-    - name: Remove Hashicorp Vault container
+
+    # Check if container is present
+    - name: Check if container is present
+      containers.podman.podman_container_info:
+        name: "{{ container_name }}"
+      register: pod_info
+      ignore_errors: true
+
+    # Remove container
+    - name: "Remove container {{ container_name }}"
       containers.podman.podman_container:
-        name: vault
+        name: "{{ container_name }}"
         state: absent
+      when: pod_info is defined
+
+
+#########################################################
+## Uninstall via kubernetes                            ##
+#########################################################
+
+- name: "Uninstall {{ container_name }} on kubernetes"
+  when: platform == "kubernetes"
+  block:
+
+    # Show information message
+    - name: This part is not (yet) implemented.
+      ansible.builtin.debug:
+      msg: "This part is not (yet) implemented."
+
+    # Stop playbook
+    - name: Stop playbook
+      ansible.builtin.meta: end_play
+
+
+#########################################################
+## Uninstall via host                                  ##
+#########################################################
+
+- name: "Uninstall {{ container_name }} on host"
+  when: platform == "host"
+  block:
+
+    # Show information message
+    - name: This part is not (yet) implemented.
+      ansible.builtin.debug:
+      msg: "This part is not (yet) implemented."
+
+    # Stop playbook
+    - name: Stop playbook
+      ansible.builtin.meta: end_play
+
+#########################################################
+## Uninstall data                                      ##
+#########################################################
+
+# Create folders from first part of container_volumes
+- name: Delete data folders...
+  ansible.builtin.file:
+    path: "{{ item.split(':')[0] }}"
+    state: absent
+  with_items: "{{ container_volumes }}"
+  when:
+    - platform == "podman"
+    - keep_data == false
 
 #########################################################
 ## Uninstall users/groups                              ##
@@ -51,9 +101,23 @@
     name: vault
     state: absent
     force: true
+  when: keep_data == false
 
 # Delete user group vault
 - name: Delete user group vault
   ansible.builtin.group: 
     name: "vault"
     state: absent
+  when: keep_data == false
+
+#########################################################
+## Post-uninstall                                      ##
+#########################################################
+
+# Unset variables
+- name: Unset variables
+  ansible.builtin.set_fact:
+    action:
+    uninstall:
+    keep_data:
+    
