@@ -51,7 +51,7 @@
   block:
 
     # Show information message
-    - name: This part is not (yet) implemented.
+    - name: Information message
       ansible.builtin.debug:
       msg: "This part is not (yet) implemented."
 
@@ -69,7 +69,7 @@
   block:
 
     # Show information message
-    - name: This part is not (yet) implemented.
+    - name: Information message
       ansible.builtin.debug:
       msg: "This part is not (yet) implemented."
 
