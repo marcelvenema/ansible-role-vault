@@ -50,15 +50,14 @@
   when: platform == "kubernetes"
   block:
 
-    # Show information message
-    - name: Information message
+    # show debug message
+    - name: Debug message
       ansible.builtin.debug:
-      msg: "This part is not (yet) implemented."
+        msg: "This part is not (yet) implemented."
 
     # Stop playbook
     - name: Stop playbook
       ansible.builtin.meta: end_play
-
 
 #########################################################
 ## Uninstall via host                                  ##
@@ -71,7 +70,7 @@
     # Show information message
     - name: Information message
       ansible.builtin.debug:
-      msg: "This part is not (yet) implemented."
+        msg: "This part is not (yet) implemented."
 
     # Stop playbook
     - name: Stop playbook
