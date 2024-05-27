@@ -1,5 +1,10 @@
 --- 
 
+# Show message
+- name: Show Information message
+  debug:
+    msg: "Starting role {{ role_name }}... action: {{ action }}."
+
 # If action variable is not defined, gather status of the service and set action variable  
 - name: Determine action variable status
   ansible.builtin.include_tasks: get_status.yml
@@ -12,11 +17,13 @@
     fail_msg: "Please provide 'action' {{ actions }}"
     quiet: true
 
-- name: Install Hashicorp Vault in Podman
+# -------------------------------------------------------
+
+- name: Install Hashicorp Vault
   ansible.builtin.include_tasks: install.yml
   when: action == "install"
 
-- name: Uninstall Hashicorp Vault in Podman
+- name: Uninstall Hashicorp Vault
   ansible.builtin.include_tasks: uninstall.yml
   when: action == "uninstall"
 

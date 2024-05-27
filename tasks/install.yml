@@ -457,7 +457,6 @@
 # Unset variables
 - name: Unset variables
   ansible.builtin.set_fact:
-    action:
     repository_url:
     repository_tag:
     repository_checksum:

@@ -116,7 +116,6 @@
 # Unset variables
 - name: Unset variables
   ansible.builtin.set_fact:
-    action:
     uninstall:
     keep_data:
     
