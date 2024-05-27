@@ -18,10 +18,10 @@
 action: **install**<br/>
 Installatie van laatste versie van Hashicorp Vault. Basis configuratie.<br/>
 variables:<br/>
-<kbd>repository_url</kbd> : URL met locatie van container repository. Kan een url zijn of pad naar lokaal of remote bestand, bijvoorbeeld 'docker.io/hashicorp/vault', '/tmp/vault.tar', 'https://192.168.1.1/repo/vault1.14.tar'. Standaard verwijst naar docker.io/hashicorp/vault via defaults/main.yml.<br/>
-<kbd>repository_tag (optioneel)</kbd> : Release of versienummer van het image. Standaard is 'latest'.<br/>
-<kbd>repository_checksum (optioneel)</kbd> : checksum van het container image. Voorbeeld: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" of "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".<br/>
-<kbd>repository_checksum_algorithm (optioneel)</kbd> : algoritme voor de checksum, bijvoorbeeld sha256, sha512, md5, etc.<br/>
+<kbd>vault_repository_url</kbd> : URL met locatie van container repository. Kan een url zijn of pad naar lokaal of remote bestand, bijvoorbeeld 'docker.io/hashicorp/vault', '/tmp/vault.tar', 'https://192.168.1.1/repo/vault1.14.tar'. Standaard verwijst naar docker.io/hashicorp/vault via defaults/main.yml.<br/>
+<kbd>vault_repository_tag (optioneel)</kbd> : Release of versienummer van het image. Standaard is 'latest'.<br/>
+<kbd>vault_repository_checksum (optioneel)</kbd> : checksum van het container image. Voorbeeld: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" of "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".<br/>
+<kbd>vault_repository_checksum_algorithm (optioneel)</kbd> : algoritme voor de checksum, bijvoorbeeld sha256, sha512, md5, etc.<br/>
 <kbd>platform (optioneel)</kbd>  : installeer op specifiek platform, bijvoorbeeld podman, kubernetes, host. Standaard is autodetect. (podman, kubernetes, host)<br/>
 <kbd>uninstall (optioneel)</kbd> : true/false. Wanneer, true wordt voor installatie eerst uninstall gestart.<br/>
 
@@ -35,10 +35,10 @@ variables:<br/>
 action: **update**<br/>
 Update Hashicorp Vault naar de laatste versie. (backlog).<br/>
 variables:<br/>
-<kbd>repository_url</kbd> : URL met locatie van container repository. Kan een url zijn of pad naar lokaal of remote bestand, bijvoorbeeld 'docker.io/hashicorp/vault', '/tmp/vault.tar', 'https://192.168.1.1/repo/vault1.14.tar'. Standaard verwijst naar docker.io/hashicorp/vault via defaults/main.yml.<br/>
-<kbd>repository_tag (optioneel)</kbd> : Release of versienummer van het image. Standaard is 'latest'.<br/>
-<kbd>repository_checksum (optioneel)</kbd> : checksum van het container image. Voorbeeld: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" of "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".<br/>
-<kbd>repository_checksum_algorithm (optioneel)</kbd> : algoritme voor de checksum, bijvoorbeeld sha256, sha512, md5, etc.<br/>
+<kbd>vault_repository_url</kbd> : URL met locatie van container repository. Kan een url zijn of pad naar lokaal of remote bestand, bijvoorbeeld 'docker.io/hashicorp/vault', '/tmp/vault.tar', 'https://192.168.1.1/repo/vault1.14.tar'. Standaard verwijst naar docker.io/hashicorp/vault via defaults/main.yml.<br/>
+<kbd>vault_repository_tag (optioneel)</kbd> : Release of versienummer van het image. Standaard is 'latest'.<br/>
+<kbd>vault_repository_checksum (optioneel)</kbd> : checksum van het container image. Voorbeeld: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" of "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".<br/>
+<kbd>vault_repository_checksum_algorithm (optioneel)</kbd> : algoritme voor de checksum, bijvoorbeeld sha256, sha512, md5, etc.<br/>
 <kbd>platform (optioneel)</kbd>  : installeer op specifiek platform, bijvoorbeeld podman, kubernetes, host. Standaard is autodetect. (podman, kubernetes, host)<br/>
 
 
@@ -73,7 +73,7 @@ Voorbeeld:
     - role: vault
       vars:
         action        : install
-        repository_url: "\tmp\vault.tar"
+        vault_repository_url: "\tmp\vault.tar"
 
 ```
 
@@ -183,7 +183,7 @@ Voorbeeld voor installatie Hashicorp Vault:
     - role: vault
       vars:
         action        : install
-        repository_url: "\tmp\vault.tar"
+        vault_repository_url: "\tmp\vault.tar"
 
 ```
 

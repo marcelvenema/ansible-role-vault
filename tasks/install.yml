@@ -11,7 +11,7 @@
     fail_msg: "Required variable '{{ item }}' has not been provided."
     quiet: true
   with_items: 
-    - repository_url
+    - vault_repository_url
 
 #########################################################
 ## Pre-installation platform check                     ##
@@ -161,10 +161,10 @@
     # local file can be http, https, ftp or local file
 
     # If tag is not defined, set value to latest
-    - name: Validate repository_tag, set default
+    - name: Validate vault_repository_tag, set default
       ansible.builtin.set_fact:
-        repository_tag: "latest"
-      when: repository_tag is not defined or repository_tag == "" or repository_tag == none
+        vault_repository_tag: "latest"
+      when: vault_repository_tag is not defined or vault_repository_tag == "" or vault_repository_tag == none
 
     # Show information
     - name: Show information
@@ -172,10 +172,10 @@
         msg: "Get container image from registry. this may take a while..."
 
     # Pull image from repository to local image repository.
-    - name: "Pull Vault container image from repository {{ repository_url}}:{{ repository_tag }}"
+    - name: "Pull Vault container image from repository {{ vault_repository_url}}:{{ vault_repository_tag }}"
       containers.podman.podman_image:
-        name: "{{ repository_url }}"
-        tag: "{{ repository_tag }}"
+        name: "{{ vault_repository_url }}"
+        tag: "{{ vault_repository_tag }}"
       register: pull_result
       ignore_errors: true
 
@@ -192,41 +192,41 @@
         # Delete local temp file
         - name: "Delete local file /tmp/{{ container_name }}"
           ansible.builtin.file:
-            path: "/tmp/{{ container_name }}.tar"
+            path: "/tmp/{{ vault_container_name }}.tar"
             state: absent
 
         # Check if file exists on ansible host
-        - name: Check if repository_url is a local container file
+        - name: Check if vault_repository_url is a local container file
           ansible.builtin.stat:
-            path: "{{ repository_url }}"
+            path: "{{ vault_repository_url }}"
           register: repository_url_result
           delegate_to: localhost
 
        # Copy image file to destination if local file
         - name: Copy container image file to destination
           ansible.builtin.copy:
-            src: "{{ repository_url }}"
+            src: "{{ vault_repository_url }}"
             dest: "/tmp/{{ container_name }}.tar"
           when: 
-            - repository_url_result.stat.exists == true
+            - vault_repository_url_result.stat.exists == true
 
       # Download local file if http or https
-        - name: "Download file from {{ repository_url }}"
+        - name: "Download file from {{ vault_repository_url }}"
           ansible.builtin.get_url:
-            url: "{{ repository_url }}"
-            dest: "/tmp/{{ container_name }}.tar"
-          when: ("http" in repository_url) or ("ftp" in repository_url) # https is included
+            url: "{{ vault_repository_url }}"
+            dest: "/tmp/{{ vault_container_name }}.tar"
+          when: ("http" in vault_repository_url) or ("ftp" in vault_repository_url) # https is included
         
         # check if container file exists
-        - name: "Check if /tmp/{{ container_name }}.tar exists..."
+        - name: "Check if /tmp/{{ vault_container_name }}.tar exists..."
           ansible.builtin.stat:
-            path: "/tmp/{{ container_name }}.tar"
+            path: "/tmp/{{ vault_container_name }}.tar"
           register: container_tar_result
 
         # Fail if image file not found
         - name: Fail if Vault container image file not found
           ansible.builtin.fail:
-            msg: "Repository URL {{ repository_url }} not found. Container image file location not found. Cannot continue..."
+            msg: "Repository URL {{ vault_repository_url }} not found. Container image file location not found. Cannot continue..."
           when: 
             - container_tar_result.stat.exists == false
 
@@ -237,36 +237,36 @@
         # If checksum contains :, split it in checksum and algorithm
         - name: Split checksum and algorithm
           ansible.builtin.set_fact:
-            repository_checksum: "{{ repository_checksum.split(':')[1] }}"
-            repository_checksum_algorithm: "{{ repository_checksum.split(':')[0] }}"
-          when: repository_checksum is defined and ":" in repository_checksum
+            repository_checksum: "{{ vault_repository_checksum.split(':')[1] }}"
+            repository_checksum_algorithm: "{{ vault_repository_checksum.split(':')[0] }}"
+          when: vault_repository_checksum is defined and ":" in vault_repository_checksum
 
         # Get checksum of container file.tar
         - name: Get checksum of local container file
           ansible.builtin.stat:
-            path: "/tmp/{{ container_name }}.tar"
-            checksum_algorithm: "{{ repository_checksum_algorithm }}"
+            path: "/tmp/{{ vault_container_name }}.tar"
+            checksum_algorithm: "{{ vault_repository_checksum_algorithm }}"
             get_checksum: yes
           register: checksum_result
-          when : repository_checksum is defined 
+          when : vault_repository_checksum is defined 
 
         # Fail when checksum is not the same
         - name: Fail when checksum is not correct
           ansible.builtin.fail:
-            msg: "Checksum of /tmp/{{ container_name }}.tar ({{ checksum_result.stat.checksum }}) is not the same as the provided checksum ({{ repository_checksum }}). Cannot continue..."
+            msg: "Checksum of /tmp/{{ vault_container_name }}.tar ({{ checksum_result.stat.checksum }}) is not the same as the provided checksum ({{ vault_repository_checksum }}). Cannot continue..."
           when: 
-            - repository_checksum is defined
-            - checksum_result.stat.checksum != repository_checksum
+            - vauilt_repository_checksum is defined
+            - checksum_result.stat.checksum != vault_repository_checksum
 
         # Load image from file if pull failed
         - name: Import container image to podman
-          ansible.builtin.command: "podman load -i /tmp/{{ container_name }}.tar"
+          ansible.builtin.command: "podman load -i /tmp/{{ vault_container_name }}.tar"
           register: import_result
 
         # Cleanup image file
         - name: Cleanup container image file
           ansible.builtin.file:
-            path: "/tmp/{{ container_name }}.tar"
+            path: "/tmp/{{ vault_container_name }}.tar"
             state: absent
 
     # Get image info from podman
@@ -277,7 +277,7 @@
     # Find image id
     - name: Parse image info, select container image id
       ansible.builtin.set_fact:
-        image_id: "{{ images_info.images | selectattr('RepoTags', 'search', container_name) | map(attribute='Id') | first }}"
+        image_id: "{{ images_info.images | selectattr('RepoTags', 'search', vault_container_name) | map(attribute='Id') | first }}"
 
     ##################################
     # Create Vault container         #
@@ -297,15 +297,15 @@
     # Create Hashicorp Vault container
     - name: "Create Hashicorp Vault container with id {{ image_id }}..."
       containers.podman.podman_container:
-        name: "{{ container_name}}"
+        name: "{{ vault_container_name}}"
         image: "{{ image_id }}"
         cap_add: IPC_LOCK
         security_opt: label=disable
         # privileged: true
         user: "{{ vault_uid }}"
         command: vault server -config=/vault/config/vault.hcl
-        ports: "{{ container_ports }}"
-        volumes: "{{ container_volumes }}"
+        ports: "{{ vault_container_ports }}"
+        volumes: "{{ vault_container_volumes }}"
         restart_policy: always
         env:
           SKIP_CHOWN: true
@@ -315,7 +315,7 @@
     - name: Wait for Hashicorp Vault container to start
       ansible.builtin.wait_for:
         host: localhost
-        port: "{{ container_ports[0].split(':')[0] }}"
+        port: "{{ vault_container_ports[0].split(':')[0] }}"
         delay: 5
         timeout: 60
 
@@ -405,10 +405,10 @@
   block:
 
     # Download Hashicorp Vault from url
-    - name: "Download Hashicorp Vault from {{ repository_url }}"
+    - name: "Download Hashicorp Vault from {{ vault_repository_url }}"
       ansible.builtin.get_url:
-        url: "{{ repository_url }}"
-        dest: "/tmp/{{ container_name }}.zip"
+        url: "{{ vault_repository_url }}"
+        dest: "/tmp/{{ vault_container_name }}.zip"
         mode: 0755
         validate_certs: false
       register: repository_url_result 
@@ -416,7 +416,7 @@
     # Unzip Hashicorp Vault
     - name: "Unzip Hashicorp Vault"
       ansible.builtin.unarchive:
-        src: "/tmp/{{ container_name }}.zip"
+        src: "/tmp/{{ vault_container_name }}.zip"
         dest: /usr/local/bin
 
     # Autostart Vault on system boot
@@ -457,11 +457,11 @@
 # Unset variables
 - name: Unset variables
   ansible.builtin.set_fact:
-    repository_url:
-    repository_tag:
-    repository_checksum:
-    repository_checksum_algorithm:
-    container_name:
-    container_ports:
-    container_volumes:
+    vault_repository_url:
+    vault_repository_tag:
+    vault_repository_checksum:
+    vault_repository_checksum_algorithm:
+    vault_container_name:
+    vault_container_ports:
+    vault_container_volumes:
     
