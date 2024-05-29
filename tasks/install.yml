@@ -123,7 +123,7 @@
     state: directory
     owner: vault
     mode: "0766"
-  with_items: "{{ container_volumes }}"
+  with_items: "{{ vault_container_volumes }}"
 
 #########################################################
 ## Pre-installation configuration                      ##
@@ -133,7 +133,7 @@
 - name: Create Hashicorp Vault configuration
   ansible.builtin.template:
     src: ./templates/vault.podman_config.hcl.j2
-    dest: "{{ data_dir }}/config/vault.hcl"
+    dest: "{{ vault_data_dir }}/config/vault.hcl"
     owner: vault
 
 #########################################################
@@ -190,7 +190,7 @@
             msg: "Cannot pull from container repository, trying to load from file..."
 
         # Delete local temp file
-        - name: "Delete local file /tmp/{{ container_name }}"
+        - name: "Delete local file /tmp/{{ vault_container_name }}"
           ansible.builtin.file:
             path: "/tmp/{{ vault_container_name }}.tar"
             state: absent
@@ -206,9 +206,9 @@
         - name: Copy container image file to destination
           ansible.builtin.copy:
             src: "{{ vault_repository_url }}"
-            dest: "/tmp/{{ container_name }}.tar"
+            dest: "/tmp/{{ vault_container_name }}.tar"
           when: 
-            - vault_repository_url_result.stat.exists == true
+            - repository_url_result.stat.exists == true
 
       # Download local file if http or https
         - name: "Download file from {{ vault_repository_url }}"
@@ -255,7 +255,7 @@
           ansible.builtin.fail:
             msg: "Checksum of /tmp/{{ vault_container_name }}.tar ({{ checksum_result.stat.checksum }}) is not the same as the provided checksum ({{ vault_repository_checksum }}). Cannot continue..."
           when: 
-            - vauilt_repository_checksum is defined
+            - vault_repository_checksum is defined
             - checksum_result.stat.checksum != vault_repository_checksum
 
         # Load image from file if pull failed
@@ -444,7 +444,7 @@
 # TODO
 - name: Register vault_address
   ansible.builtin.set_fact:
-    vault_address: "http://localhost:{{ container_ports[0].split(':')[0] }}"
+    vault_address: "http://localhost:{{ vault_container_ports[0].split(':')[0] }}"
 
 # Configure Hashicorp Vault
 - name: Configure

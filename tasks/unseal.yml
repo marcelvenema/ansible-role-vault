@@ -7,7 +7,7 @@
 # Validate variables
 - name: Validate variables for action.
   ansible.builtin.assert:
-    that: "{{ varitem }} is defined"
+    that: "varitem is defined"
     fail_msg: "Required variable '{{ varitem }}' has not been provided."
     quiet: true
   loop_control:

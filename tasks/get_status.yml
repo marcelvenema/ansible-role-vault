@@ -23,14 +23,14 @@
         name: "{{ vault_container_name }}"
       register: podman_containers   
 
-    # Set action variable
-    - name: Set action variable
-      set_fact:
-        action: "install"
-      when: '" {{vault_container_name }} " not in podman_containers.stdout_lines'
-
-    # Set action variable
+    # Set action variable to start if container is not running
     - name: Set action variable
       set_fact:
         action: "start"
-      when: '"Excited" in podman_containers.stdout_lines'
+      when: '"Exited" in podman_containers.stdout_lines'
+
+    # Set action variable to install if container is not installed
+    - name: Set action variable
+      set_fact:
+        action: "install"
+      when: '" {{ vault_container_name }} " not in podman_containers.stdout_lines'

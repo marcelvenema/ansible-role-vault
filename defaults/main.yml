@@ -1,6 +1,6 @@
 ---
 
-vault_repository_url: "hashicorp/vault"
+vault_repository_url: "docker.io/hashicorp/vault"
 # vault_repository_url can be an url to docker image or a tar file. example: "https://docker.io/sonatype/nexus3" or "/tmp/nexus3.67.1.tar", "https://192.168.1.1/repo/nexus.tar".
 # vault_repository_tag can be a tag of the image or a version of the tar file. example: "3.67.1" or "latest".
 # vault_repository_checksum can be a checksum of the container file. example: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" or "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".
