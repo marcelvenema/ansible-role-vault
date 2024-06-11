@@ -216,7 +216,7 @@
         msg: "Get container image from registry. this may take a while..."
 
     # Pull image from repository to local image repository.
-    - name: "Pull Vault container image from repository {{ role_repository_url}}:{{ role_repository_tag }}"
+    - name: "Pull {{ role_container_name }} image from repository {{ role_repository_url}}:{{ role_repository_tag }}"
       containers.podman.podman_image:
         name: "{{ role_repository_url }}"
         tag: "{{ role_repository_tag }}"
@@ -339,7 +339,7 @@
         vault_uid: "{{ vault_user.uid }}"  
 
     # Create Hashicorp Vault container
-    - name: "Create Hashicorp Vault container with id {{ image_id }}..."
+    - name: "Create container {{ role_container_name }} with id {{ image_id }}..."
       containers.podman.podman_container:
         name: "{{ role_container_name}}"
         image: "{{ image_id }}"
