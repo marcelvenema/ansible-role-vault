@@ -13,6 +13,50 @@
   with_items: 
     - vault_repository_url
 
+# variables are copied to role variables, so this code block can be a template 
+# and used in multiple roles
+
+# Set var role_repository_url
+- name: "Determine url {{ vault_repository_url }}..."
+  ansible.builtin.set_fact:
+    role_repository_url: "{{ vault_repository_url }}"
+
+# Set role_repository_tag if defined
+- name: Determine tag...
+  ansible.builtin.set_fact:
+    role_repository_tag: "{{ vault_repository_tag }}"
+  when: vault_repository_tag is defined
+
+# Set role_repository_checksum if defined
+- name: Determine checksum...
+  ansible.builtin.set_fact:
+    role_repository_checksum: "{{ vault_repository_checksum }}"
+  when: vault_repository_checksum is defined
+
+# Set role_repository_checksum_algorithm if defined
+- name: Determine checksum algorithm...
+  ansible.builtin.set_fact:
+    role_repository_checksum_algorithm: "{{ vault_repository_checksum_algorithm }}"
+  when: vault_repository_checksum_algorithm is defined
+
+# Set container name
+- name: Determine container name
+  ansible.builtin.set_fact:
+    role_container_name: "{{ vault_container_name }}"
+  when: vault_container_name is defined
+
+# Set container ports
+- name: Determine container ports
+  ansible.builtin.set_fact:
+    role_container_ports: "{{ vault_container_ports }}"
+  when: vault_container_ports is defined
+
+# Set container volumes
+- name: Determine container volumes
+  ansible.builtin.set_fact:
+    role_container_volumes: "{{ vault_container_volumes }}"
+  when: vault_container_volumes is defined
+
 #########################################################
 ## Pre-installation platform check                     ##
 #########################################################
@@ -141,10 +185,10 @@
 #########################################################
 
 #########################################################
-## Installation via podman                             ##
+## Installation on podman                              ##
 #########################################################
 
-- name: Install Vault on podman
+- name: "Install {{ role_container_name }} container on podman"
   when: platform == "podman"
   block:
   
@@ -161,10 +205,10 @@
     # local file can be http, https, ftp or local file
 
     # If tag is not defined, set value to latest
-    - name: Validate vault_repository_tag, set default
+    - name: Validate role_repository_tag, set default
       ansible.builtin.set_fact:
-        vault_repository_tag: "latest"
-      when: vault_repository_tag is not defined or vault_repository_tag == "" or vault_repository_tag == none
+        role_repository_tag: "latest"
+      when: role_repository_tag is not defined or role_repository_tag == "" or role_repository_tag == none
 
     # Show information
     - name: Show information
@@ -172,10 +216,10 @@
         msg: "Get container image from registry. this may take a while..."
 
     # Pull image from repository to local image repository.
-    - name: "Pull Vault container image from repository {{ vault_repository_url}}:{{ vault_repository_tag }}"
+    - name: "Pull Vault container image from repository {{ role_repository_url}}:{{ role_repository_tag }}"
       containers.podman.podman_image:
-        name: "{{ vault_repository_url }}"
-        tag: "{{ vault_repository_tag }}"
+        name: "{{ role_repository_url }}"
+        tag: "{{ role_repository_tag }}"
       register: pull_result
       ignore_errors: true
 
@@ -190,43 +234,43 @@
             msg: "Cannot pull from container repository, trying to load from file..."
 
         # Delete local temp file
-        - name: "Delete local file /tmp/{{ vault_container_name }}"
+        - name: "Delete local file /tmp/{{ role_container_name }}"
           ansible.builtin.file:
-            path: "/tmp/{{ vault_container_name }}.tar"
+            path: "/tmp/{{ role_container_name }}.tar"
             state: absent
 
         # Check if file exists on ansible host
-        - name: Check if vault_repository_url is a local container file
+        - name: Check if repository_url is a local container file
           ansible.builtin.stat:
-            path: "{{ vault_repository_url }}"
+            path: "{{ role_repository_url }}"
           register: repository_url_result
           delegate_to: localhost
 
        # Copy image file to destination if local file
         - name: Copy container image file to destination
           ansible.builtin.copy:
-            src: "{{ vault_repository_url }}"
-            dest: "/tmp/{{ vault_container_name }}.tar"
+            src: "{{ role_repository_url }}"
+            dest: "/tmp/{{ role_container_name }}.tar"
           when: 
             - repository_url_result.stat.exists == true
 
       # Download local file if http or https
-        - name: "Download file from {{ vault_repository_url }}"
+        - name: "Download file from {{ role_repository_url }}"
           ansible.builtin.get_url:
-            url: "{{ vault_repository_url }}"
-            dest: "/tmp/{{ vault_container_name }}.tar"
-          when: ("http" in vault_repository_url) or ("ftp" in vault_repository_url) # https is included
+            url: "{{ role_repository_url }}"
+            dest: "/tmp/{{ role_container_name }}.tar"
+          when: ("http" in role_repository_url) or ("ftp" in role_repository_url) # https is included
         
         # check if container file exists
-        - name: "Check if /tmp/{{ vault_container_name }}.tar exists..."
+        - name: "Check if /tmp/{{ role_container_name }}.tar exists..."
           ansible.builtin.stat:
-            path: "/tmp/{{ vault_container_name }}.tar"
+            path: "/tmp/{{ role_container_name }}.tar"
           register: container_tar_result
 
         # Fail if image file not found
-        - name: Fail if Vault container image file not found
+        - name: Fail if container image file not found
           ansible.builtin.fail:
-            msg: "Repository URL {{ vault_repository_url }} not found. Container image file location not found. Cannot continue..."
+            msg: "Repository URL {{ role_repository_url }} not found. Container image file location not found. Cannot continue..."
           when: 
             - container_tar_result.stat.exists == false
 
@@ -237,36 +281,36 @@
         # If checksum contains :, split it in checksum and algorithm
         - name: Split checksum and algorithm
           ansible.builtin.set_fact:
-            repository_checksum: "{{ vault_repository_checksum.split(':')[1] }}"
-            repository_checksum_algorithm: "{{ vault_repository_checksum.split(':')[0] }}"
-          when: vault_repository_checksum is defined and ":" in vault_repository_checksum
+            repository_checksum: "{{ role_repository_checksum.split(':')[1] }}"
+            repository_checksum_algorithm: "{{ role_repository_checksum.split(':')[0] }}"
+          when: role_repository_checksum is defined and ":" in role_repository_checksum
 
         # Get checksum of container file.tar
         - name: Get checksum of local container file
           ansible.builtin.stat:
-            path: "/tmp/{{ vault_container_name }}.tar"
-            checksum_algorithm: "{{ vault_repository_checksum_algorithm }}"
+            path: "/tmp/{{ role_container_name }}.tar"
+            checksum_algorithm: "{{ role_repository_checksum_algorithm }}"
             get_checksum: yes
           register: checksum_result
-          when : vault_repository_checksum is defined 
+          when : role_repository_checksum is defined 
 
         # Fail when checksum is not the same
         - name: Fail when checksum is not correct
           ansible.builtin.fail:
-            msg: "Checksum of /tmp/{{ vault_container_name }}.tar ({{ checksum_result.stat.checksum }}) is not the same as the provided checksum ({{ vault_repository_checksum }}). Cannot continue..."
+            msg: "Checksum of /tmp/{{ role_container_name }}.tar ({{ checksum_result.stat.checksum }}) is not the same as the provided checksum ({{ vault_repository_checksum }}). Cannot continue..."
           when: 
-            - vault_repository_checksum is defined
-            - checksum_result.stat.checksum != vault_repository_checksum
+            - role_repository_checksum is defined
+            - checksum_result.stat.checksum != role_repository_checksum
 
         # Load image from file if pull failed
         - name: Import container image to podman
-          ansible.builtin.command: "podman load -i /tmp/{{ vault_container_name }}.tar"
+          ansible.builtin.command: "podman load -i /tmp/{{ role_container_name }}.tar"
           register: import_result
 
         # Cleanup image file
         - name: Cleanup container image file
           ansible.builtin.file:
-            path: "/tmp/{{ vault_container_name }}.tar"
+            path: "/tmp/{{ role_container_name }}.tar"
             state: absent
 
     # Get image info from podman
@@ -277,7 +321,7 @@
     # Find image id
     - name: Parse image info, select container image id
       ansible.builtin.set_fact:
-        image_id: "{{ images_info.images | selectattr('RepoTags', 'search', vault_container_name) | map(attribute='Id') | first }}"
+        image_id: "{{ images_info.images | selectattr('RepoTags', 'search', role_container_name) | map(attribute='Id') | first }}"
 
     ##################################
     # Create Vault container         #
@@ -297,15 +341,15 @@
     # Create Hashicorp Vault container
     - name: "Create Hashicorp Vault container with id {{ image_id }}..."
       containers.podman.podman_container:
-        name: "{{ vault_container_name}}"
+        name: "{{ role_container_name}}"
         image: "{{ image_id }}"
         cap_add: IPC_LOCK
         security_opt: label=disable
         # privileged: true
         user: "{{ vault_uid }}"
         command: vault server -config=/vault/config/vault.hcl
-        ports: "{{ vault_container_ports }}"
-        volumes: "{{ vault_container_volumes }}"
+        ports: "{{ role_container_ports }}"
+        volumes: "{{ role_container_volumes }}"
         restart_policy: always
         env:
           SKIP_CHOWN: true
@@ -315,7 +359,7 @@
     - name: Wait for Hashicorp Vault container to start
       ansible.builtin.wait_for:
         host: localhost
-        port: "{{ vault_container_ports[0].split(':')[0] }}"
+        port: "{{ role_container_ports[0].split(':')[0] }}"
         delay: 5
         timeout: 60
 
@@ -385,7 +429,7 @@
     # Debug message
     - name: Debug message
       ansible.builtin.debug:
-        msg: "Install Hashicorp Vault on kubernetes"
+        msg: "Install container on kubernetes"
   
     # Show information message
     - name: This part is not (yet) implemented.
@@ -400,15 +444,15 @@
 ## Installation on host                                ##
 #########################################################
 
-- name: Install Vault on host
+- name: Install application on host
   when: platform == "host"
   block:
 
     # Download Hashicorp Vault from url
-    - name: "Download Hashicorp Vault from {{ vault_repository_url }}"
+    - name: "Download Hashicorp Vault from {{ role_repository_url }}"
       ansible.builtin.get_url:
-        url: "{{ vault_repository_url }}"
-        dest: "/tmp/{{ vault_container_name }}.zip"
+        url: "{{ role_repository_url }}"
+        dest: "/tmp/{{ role_container_name }}.zip"
         mode: 0755
         validate_certs: false
       register: repository_url_result 
@@ -416,7 +460,7 @@
     # Unzip Hashicorp Vault
     - name: "Unzip Hashicorp Vault"
       ansible.builtin.unarchive:
-        src: "/tmp/{{ vault_container_name }}.zip"
+        src: "/tmp/{{ role_container_name }}.zip"
         dest: /usr/local/bin
 
     # Autostart Vault on system boot
@@ -447,7 +491,7 @@
     vault_address: "http://localhost:{{ vault_container_ports[0].split(':')[0] }}"
 
 # Configure Hashicorp Vault
-- name: Configure
+- name: Configure application
   ansible.builtin.include_tasks: configure.yml
 
 #########################################################
@@ -457,11 +501,11 @@
 # Unset variables
 - name: Unset variables
   ansible.builtin.set_fact:
-    vault_repository_url:
-    vault_repository_tag:
-    vault_repository_checksum:
-    vault_repository_checksum_algorithm:
-    vault_container_name:
-    vault_container_ports:
-    vault_container_volumes:
+    role_repository_url:
+    role_repository_tag:
+    role_repository_checksum:
+    role_repository_checksum_algorithm:
+    role_container_name:
+    role_container_ports:
+    role_container_volumes:
     
