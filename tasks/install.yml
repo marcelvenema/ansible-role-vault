@@ -340,12 +340,13 @@
 
     # Create Hashicorp Vault container
     - name: "Create container {{ role_container_name }} with id {{ image_id }}..."
+      become: true
       containers.podman.podman_container:
         name: "{{ role_container_name}}"
         image: "{{ image_id }}"
         cap_add: IPC_LOCK
         security_opt: label=disable
-        # privileged: true
+        privileged: true
         user: "{{ vault_uid }}"
         command: vault server -config=/vault/config/vault.hcl
         ports: "{{ role_container_ports }}"
@@ -373,7 +374,7 @@
         path: /home/vault/.config/systemd/user
         state: directory
         owner: vault
-        mode: 0766
+        mode: 0755
 
     # Stop Vault container
     - name: Stop Vault container
@@ -393,30 +394,16 @@
         name: vault
         new: true
         no_header: true
-        dest: /home/vault/.config/systemd/user
+        dest: /etc/systemd/system
 
-    # Set systemd unit file permissions
-    - name: Set systemd unit file permissions
-      ansible.builtin.file:
-        path: /home/vault/.config/systemd/user/container-vault.service
-        owner: vault
-        mode: 0644
-
-    # Reload systemd with shell. Use user vault
-    - name: Reload systemd with shell. Use user vault
-      ansible.builtin.shell: "systemctl --user daemon-reload"
+    # Reload systemd with shell. 
+    - name: Reload systemd with shell
+      ansible.builtin.shell: "systemctl daemon-reload"
       become: true
-      become_user: vault
-      environment:
-        XDG_RUNTIME_DIR: "/run/user/{{ vault_uid }}"
-    
-    # Enable systemd service for Vault container
-    #- name: Enable systemd service for Vault container
-    #  ansible.builtin.shell: "systemctl --user enable --now container-vault.service"
-    #  become: true
-    #  become_user: vault
-    #  environment:
-    #    XDG_RUNTIME_DIR: "/run/user/{{ vault_uid }}"
+
+    - name: Enable service
+      ansible.builtin.shell: "systemctl enable container-vault.service"
+      become: true
 
 #########################################################
 ## Installation on kubernetes                         ##

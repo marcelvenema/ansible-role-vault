@@ -91,3 +91,17 @@
     body:
       type: "approle"
       description: "AppRole authentication method for applications"
+
+# Enable Vault PKI Secrets Engine
+- name: Enable Hashicorp Vault PKI Secrets Engine
+  ansible.builtin.uri:
+    url: "{{ vault_address }}/v1/sys/mounts/pki"
+    validate_certs: false 
+    method: POST
+    status_code: 204
+    headers:
+      X-Vault-Token: "{{ vault_token }}"     
+    body_format: json
+    body:
+      type: "pki"
+      description: "PKI secrets engine for certificates"
