@@ -126,35 +126,56 @@
 #########################################################
 ## Pre-installation user/group                         ##
 #########################################################
+# use user podman with podman containers, if not exists or not using podman, use vault user
 
-# Create Hashicorp Vault user group
-- name: Create Hashicorp Vault user group
-  ansible.builtin.group: 
-    name: "vault"
-  become: true
+# create podman user and group when platform is podman
+- name: Create user/group for podman platform
+  when: platform == "podman"
+  block:
 
-# Create Hashicorp Vault user
-- name: Create Hashicorp Vault user
-  ansible.builtin.user:
-    name: "vault"
-    group: "vault"
-    system: true
-    shell: "/bin/bash"
-    comment: "Vault user"
-    createhome: "yes"
-    state: present
+    # Create podman user group
+    - name: Create Podman user group
+      ansible.builtin.group: 
+        name: "podman"
+      become: true
 
-# Enable linger for Hashicorp Vault user
-- name: Enable linger for Hashicorp Vault user
-  ansible.builtin.command: "loginctl enable-linger vault"
+    # Create podman user
+    - name: Create Podman user
+      ansible.builtin.user:
+        name: "podman"
+        group: "podman"
+        system: true
+        shell: "/bin/bash"
+        comment: "Podman user"
+        createhome: "yes"
+        state: present
 
-# Create folder for ansible tmp files
-- name: Create home folders for user
-  ansible.builtin.file:
-    path: /home/vault/.ansible/tmp
-    state: directory
-    owner: vault
-    mode: 0700
+    # Enable linger for user
+    - name: Enable linger for Podman user
+      ansible.builtin.command: "loginctl enable-linger podman"
+
+    # Create folder for ansible tmp files
+    - name: Create home folders for user podman
+      ansible.builtin.file:
+        path: /home/podman/.ansible/tmp
+        state: directory
+        owner: podman
+        mode: 0755
+
+    # Create systemd folder for user
+    - name: Create systemd folder for user podman
+      ansible.builtin.file:
+        path: "/home/podman/.config/systemd/user/"
+        state: directory
+        owner: podman
+        mode: 0755
+
+    # Set variable service_user
+    - name: Set variable service_user
+      ansible.builtin.set_fact:
+        service_user: "podman"
+
+# TODO: create user for kubernetes, local
 
 #########################################################
 ## Pre-installation folders                            ##
@@ -165,7 +186,7 @@
   ansible.builtin.file:
     path: "{{ item.split(':')[0] }}"
     state: directory
-    owner: vault
+    owner: "{{ service_user}}"
     mode: "0766"
   with_items: "{{ vault_container_volumes }}"
 
@@ -178,7 +199,7 @@
   ansible.builtin.template:
     src: ./templates/vault.podman_config.hcl.j2
     dest: "{{ vault_data_dir }}/config/vault.hcl"
-    owner: vault
+    owner: "{{ service_user}}"
 
 #########################################################
 ## Installation                                        ##
@@ -327,16 +348,16 @@
     # Create Vault container         #
     ##################################
 
-    # Get uid of user Vault
-    - name: Get uid of user Vault
+    # Get uid of user podman
+    - name: "Get uid of {{ service_user }}"
       ansible.builtin.user:
-        name: vault
-      register: vault_user
+        name: "{{ service_user }}"
+      register: service_user_details
 
     # Set fact vault_uid
-    - name: Store uid of user Vault
+    - name: Store uid of user podman
       ansible.builtin.set_fact:
-        vault_uid: "{{ vault_user.uid }}"  
+        podman_uid: "{{ service_user_details.uid }}"  
 
     # Create Hashicorp Vault container
     - name: "Create container {{ role_container_name }} with id {{ image_id }}..."
@@ -347,7 +368,7 @@
         cap_add: IPC_LOCK
         security_opt: label=disable
         privileged: true
-        user: "{{ vault_uid }}"
+        user: "{{ podman_uid }}"
         command: vault server -config=/vault/config/vault.hcl
         ports: "{{ role_container_ports }}"
         volumes: "{{ role_container_volumes }}"
@@ -368,16 +389,16 @@
     # Configure autostart container  #
     ##################################
 
-    # Create folder for systemd unit file
-    - name: Create folder for systemd unit file
-      ansible.builtin.file:
-        path: /home/vault/.config/systemd/user
-        state: directory
-        owner: vault
-        mode: 0755
+    # Auto-start Vault container on system boot
+    - name: Generate systemd unit file for Vault container
+      containers.podman.podman_generate_systemd:
+        name: vault
+        new: true
+        no_header: true
+        dest: /etc/systemd/system
 
     # Stop Vault container
-    - name: Stop Vault container
+    - name: Stop Podman container
       containers.podman.podman_container:
         name: container
         image: "{{ image_id }}"
@@ -388,22 +409,19 @@
       containers.podman.podman_prune:
         volume: true
 
-    # Auto-start Vault container on system boot
-    - name: Generate systemd unit file for Vault container
-      containers.podman.podman_generate_systemd:
-        name: vault
-        new: true
-        no_header: true
-        dest: /etc/systemd/system
-
-    # Reload systemd with shell. 
-    - name: Reload systemd with shell
-      ansible.builtin.shell: "systemctl daemon-reload"
+    # Reload systemd
+    - name: Reload systemd
       become: true
-
-    - name: Enable service
-      ansible.builtin.shell: "systemctl enable container-vault.service"
+      ansible.builtin.systemd_service:
+        daemon_reload: yes
+        scope: system
+    
+    # Enable systemd service for container
+    - name: "Enable systemd service for {{ role_container_name }} container"
       become: true
+      ansible.builtin.service:
+        name: "container-{{ role_container_name }}.service"
+        enabled: yes
 
 #########################################################
 ## Installation on kubernetes                         ##
