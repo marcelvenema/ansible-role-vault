@@ -1,7 +1,7 @@
 --- 
 
 # Show message
-- name: Show Information message
+- name: Show action message
   debug:
     msg: "Starting role {{ role_name }}... action: {{ action }}."
 
@@ -10,7 +10,7 @@
   ansible.builtin.include_tasks: get_status.yml
   when: action is not defined
 
-- name: Verify variable input
+- name: "Verify valid action ({{ action }})..."
   ansible.builtin.assert:
     that:
       - action is defined and action in actions
@@ -19,90 +19,90 @@
 
 # -------------------------------------------------------
 
-- name: Install Hashicorp Vault
+- name: Start install action...
   ansible.builtin.include_tasks: install.yml
   when: action == "install"
 
-- name: Uninstall Hashicorp Vault
+- name: Start uninstall action...
   ansible.builtin.include_tasks: uninstall.yml
   when: action == "uninstall"
 
-- name: Configure Hashicorp Vault
+- name: Start configure action...
   ansible.builtin.include_tasks: configure.yml
   when: action == "configure"
 
-- name: Update Hashicorp Vault
+- name: Start update action...
   ansible.builtin.include_tasks: update.yml
   when: action == "update"
 
-- name: Start Hashicorp Vault
+- name: Start start action...
   ansible.builtin.include_tasks: start.yml
   when: action == "start"
 
-- name: Stop Hashicorp Vault
+- name: Start stop action...
   ansible.builtin.include_tasks: stop.yml
   when: action == "stop"
 
-- name: Unseal Vault
+- name: Start unseal action...
   ansible.builtin.include_tasks: unseal.yml
   when: action == "unseal"
 
   # secret_engine
-- name: Get secret engine for Hashicorp Vault
+- name: Start get_secret_engine task...
   ansible.builtin.include_tasks: secret_engine.yml
   when: action == "get_secret_engine"
 
-- name: Create secret engine for Hashicorp Vault
+- name: Start create_secret_engine action...
   ansible.builtin.include_tasks: secret_engine.yml
   when: action == "create_secret_engine"
 
-- name: Destroy secret engine for Hashicorp Vault
+- name: Start destroy_secret_engine action...
   ansible.builtin.include_tasks: secret_engine.yml
   when: action == "destroy_secret_engine"
 
   # secrets
-- name: Get secret key/value for Vault
+- name: Start get_secret action...
   ansible.builtin.include_tasks: secrets.yml
   when: action == "get_secret"
 
-- name: Create secret key/value for Vault
+- name: Start create_secret action...
   ansible.builtin.include_tasks: secrets.yml
   when: action == "create_secret"
 
-- name: Destroy secret key/value for Vault
+- name: Start destoy_secret action...
   ansible.builtin.include_tasks: secrets.yml
   when: action == "destroy_secret"
 
-- name: Import secrets
+- name: Start import_secrets action...
   ansible.builtin.include_tasks: secrets.yml
   when: action == "import_secrets"
 
-- name: Export secrets
+- name: Start export_secrets action...
   ansible.builtin.include_tasks: secrets.yml
   when: action == "export_secrets"
 
   # policies
-- name: Get policy for Vault
+- name: Start get_policy action...
   ansible.builtin.include_tasks: policies.yml
   when: action == "get_policy"
 
-- name: Create policy for Vault
+- name: Start create_policy action...
   ansible.builtin.include_tasks: policies.yml
   when: action == "create_policy"
 
-- name: Destroy policy for Vault
+- name: Start destroy_policy action...
   ansible.builtin.include_tasks: policies.yml
   when: action == "destroy_policy"
 
   # approles
-- name: Get AppRole for Vault
+- name: Start get_approle action...
   ansible.builtin.include_tasks: approles.yml
   when: action == "get_approle"
 
-- name: Create AppRole for Vault
+- name: Start create_approle action...
   ansible.builtin.include_tasks: approles.yml
   when: action == "create_approle"
 
-- name: Destroy AppRole for Vault
+- name: Start destroy_approle action...
   ansible.builtin.include_tasks: approles.yml
   when: action == "destroy_approle"
