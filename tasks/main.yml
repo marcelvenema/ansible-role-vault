@@ -6,7 +6,7 @@
     msg: "Starting role {{ role_name }}... action: {{ action }}."
 
 # If action variable is not defined, gather status of the service and set action variable  
-- name: Determine action variable status
+- name: Gather action variable status...
   ansible.builtin.include_tasks: get_status.yml
   when: action is not defined
 

@@ -8,12 +8,12 @@
 # If the service is not started, set action to start.
 
 # Gather installed packages
-- name: Gather installed packages
+- name: Gather installed packages...
   ansible.builtin.package_facts:
     manager: auto
 
 # Podman is installed
-- name: Podman is detected...
+- name: detected Podman package...
   when: '"podman" in ansible_facts.packages'
   block:
 
@@ -24,13 +24,13 @@
       register: podman_containers   
 
     # Set action variable to start if container is not running
-    - name: Set action variable
+    - name: Set variable (action)...
       set_fact:
         action: "start"
       when: '"Exited" in podman_containers.stdout_lines'
 
     # Set action variable to install if container is not installed
-    - name: Set action variable
+    - name: Set variable (action)...
       set_fact:
         action: "install"
       when: '" {{ vault_container_name }} " not in podman_containers.stdout_lines'
