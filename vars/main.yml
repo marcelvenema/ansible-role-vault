@@ -1,91 +1,114 @@
 ---
 
 actions:
-  - install
-  - install_description : "Installatie van laatste versie van Hashicorp Vault. Basis configuratie."
-  - install_icon : "media/icon_vault.png"
-  
-  - uninstall
-  - uninstall_description : "De-installatie van Hashicorp Vault. Verwijderd de container, bestanden, gebruikers en groepen."
-  - uninstall_icon : "media/icon_vault.png"
 
-  - update
-  - update_description : "Update van Hashicorp Vault naar laatste versie."
-  - update_icon : "media/icon_vault.png"
+  # Deployment actions
+  - install:
+      description : "Installatie van laatste versie van Hashicorp Vault. Basis configuratie."
+      icon : "media/icon_vault.png"
+      parameters:
+            - uninstall
+            - vault_repository_url
+            - vault_repository_tag
+            - vault_repository_checksum
+            - vault_repository_checksum_algorithm
+            - vault_container_name
+            - vault_container_ports
+            - vault_container_volumes
+            - vault_data_dir
+            - platform
 
-  - configure
-  - configure_description : "Configureer Vault. Maak een token en unseal keys aan. Unseal Vault."
-  - configure_icon : "media/icon_vault.png"
+  - uninstall:
+      description : "De-installatie van Hashicorp Vault. Verwijderd de container, bestanden, gebruikers en groepen."
+      icon : "media/icon_vault.png"
 
-  - start
+  - update:
+      description : "Update van Hashicorp Vault naar laatste versie."
+      icon : "media/icon_vault.png"
 
-  - stop 
+  - configure:
+      description : "Configureer Vault. Maak een token en unseal keys aan. Unseal Vault."
+      icon : "media/icon_vault.png"
 
-  # ----------------------------------------
-  - get_secret_engine
-  - get_secret_engine_description : "Haal de configuratie van een secret engine op."
-  - get_secret_engine_icon : "media/icon_vault.png"
+  # Administration actions
+  - start:
+      description : "Start Vault."
+      icon : "media/icon_vault.png"
 
-  - create_secret_engine
-  - create_secret_engine_description : "Maak een secret engine aan."
-  - create_secret_engine_icon : "media/icon_vault.png"
+  - stop:
+      description : "Stop Vault."
+      icon : "media/icon_vault.png"
 
-  - destroy_secret_engine
-  - destroy_secret_engine_description : "Verwijder een secret engine."
-  - destroy_secret_engine_icon : "media/icon_vault.png"
+  - unseal:
+      description : "Unseal Vault."
+      icon : "media/icon_vault.png"
+      parameters:
+        - vault_address
+        - vault_unseal_keys
 
-  # ----------------------------------------
-  - get_secret
-  - get_secret_description : "Haal een secret op."
-  - get_secret_icon : "media/icon_vault.png"
+  # Secret engine actions
+  - get_secret_engine:
+      description : "Haal de configuratie van een secret engine op."
+      icon : "media/icon_vault.png"
 
-  - create_secret
-  - create_secret_description : "Aanmaken secret"
-  - create_secret_icon : "media/icon_vault.png"
+  - create_secret_engine:
+      description : "Maak een secret engine"
+      icon : "media/icon_vault.png"
 
-  - destroy_secret
-  - destroy_secret_description : "Verwijderen van ssecret."
-  - destroy_secret_icon : "media/icon_vault.png"
-  
-  - import_secrets
-  - import_secrets_description : "Importeer een secret in Vault."
-  - import_secrets_icon : "media/icon_vault.png"
+  - destroy_secret_engine:
+      description : "Verwijder een secret engine."
+      icon : "media/icon_vault.png"
 
-  - export_secrets
-  - export_secrets_description : "Exporteer een secret uit Vault."
-  - export_secrets_icon : "media/icon_vault.png"
+  # Secret actions
+  - get_secret:
+      description : "Haal een secret op."
+      icon : "media/icon_vault.png"
 
-  # ----------------------------------------
-  - get_policy
-  - get_policy_description : "Haal de configuratie van een policy op."
-  - get_policy_icon : "media/icon_vault.png"
+  - create_secret:
+      description : "Maak een secret aan."
+      icon : "media/icon_vault.png"
 
-  - create_policy
-  - create_policy_description : "Maak een policy aan."
-  - create_policy_icon : "media/icon_vault.png"
+  - destroy_secret:
+      description : "Verwijder een secret."
+      icon : "media/icon_vault.png"
 
-  - destroy_policy
-  - destroy_policy_description : "Verwijder een policy."
-  - destroy_policy_icon : "media/icon_vault.png"
-  
-  # ----------------------------------------
-  - get_approle
-  - get_approle_description : "Haal de configuratie van een approle op."
-  - get_approle_icon : "media/icon_vault.png"
+  - import_secrets:
+      description : "Importeer een secret in Vault."
+      icon : "media/icon_vault.png"
 
-  - create_approle
-  - create_approle_description : "Maak een approle aan."
-  - create_approle_icon : "media/icon_vault.png"
+  - export_secrets:
+      description : "Exporteer een secret uit Vault."
+      icon : "media/icon_vault.png"
 
-  - destroy_approle
-  - destroy_approle_description : "Verwijder een approle."
-  - destroy_approle_icon : "media/icon_vault.png"
+  # Policy actions
+  - get_policy:
+      description : "Haal de configuratie van een policy op."
+      icon : "media/icon_vault.png"
 
-  # ----------------------------------------
-  - unseal
-  - unseal_description : "Unseal Vault zodat deze gereed is voor gebruik."
-  - unseal_icon : "media/icon_vault.png"
+  - create_policy:
+      description : "Maak een policy aan."
+      icon : "media/icon_vault.png"
 
+  - destroy_policy:
+      description : "Verwijder een policy."
+      icon : "media/icon_vault.png"
+
+  # AppRole actions
+  - get_approle:
+      description : "Haal de configuratie van een approle op."
+      icon : "media/icon_vault.png"
+
+  - create_approle:
+      description : "Maak een approle aan."
+      icon : "media/icon_vault.png"
+
+  - destroy_approle:
+      description : "Verwijder een approle."
+      icon : "media/icon_vault.png"
+
+vault:
+  id: ""
+  vault_name: "vault"
 
 
 install_properties:
@@ -140,4 +163,3 @@ export_secrets_properties:
 rolevars:
   - vault_address
   - vault_token
- 

@@ -6,7 +6,7 @@ vault_repository_url: "docker.io/hashicorp/vault"
 # vault_repository_checksum can be a checksum of the container file. example: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" or "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".
 # vault_repository_checksum_algorithm can be a checksum algorithm of the container file. example: "sha256", sha512", "md5".
 
+vault_data_dir: "/data/vault"
 vault_container_name: "vault"
 vault_container_ports: ["8200:8200"]
 vault_container_volumes: ["/data/vault/config:/vault/config:Z", "/data/vault/file:/vault/file:Z", "/data/vault/logs:/vault/logs:Z"]
-vault_data_dir: "/data/vault"
