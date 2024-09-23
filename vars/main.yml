@@ -7,16 +7,46 @@ actions:
       description : "Installatie van laatste versie van Hashicorp Vault. Basis configuratie."
       icon : "media/icon_vault.png"
       parameters:
-            - uninstall
-            - vault_repository_url
-            - vault_repository_tag
-            - vault_repository_checksum
-            - vault_repository_checksum_algorithm
-            - vault_container_name
-            - vault_container_ports
-            - vault_container_volumes
-            - vault_data_dir
-            - platform
+            - uninstall:
+                description : "Start de-installatie voordat de installatie wordt gestart. true/false. Standaard is 'true'."
+                required : false
+                value: "true"
+            - vault_repository_url:
+                description : "URL met locatie van repository. Kan een url zijn of pad naar lokaal bestand."
+                required : true
+                value: ""
+            - vault_repository_tag:
+                description : "Release of versienummer van het image. Standaard is 'latest'."
+                required : false
+                value: "latest"
+            - vault_repository_checksum:
+                description : "Checksum van het image."
+                required : false
+                value: ""
+            - vault_repository_checksum_algorithm:
+                description : "Algoritme voor checksum."
+                required : false
+                value: ""
+            - vault_container_name:
+                description : "Naam van de container."
+                required : false
+                value: "vault"
+            - vault_container_ports:
+                description : "Poorten van de container."
+                required : false
+                value: "8200:8200"
+            - vault_container_volumes:
+                description : "Volumes van de container."
+                required : false
+                value: ""
+            - vault_data_dir:
+                description : "Folder waarin de data van Vault wordt opgeslagen."
+                required : false
+                value: "/vault/data"
+            - platform:
+                description : "installeer op specifiek platform, bijvoorbeeld podman, kubernetes, linux. Standaard is autodetect."
+                required : false
+                value: "autodetect"
 
   - uninstall:
       description : "De-installatie van Hashicorp Vault. Verwijderd de container, bestanden, gebruikers en groepen."
@@ -43,8 +73,10 @@ actions:
       description : "Unseal Vault."
       icon : "media/icon_vault.png"
       parameters:
-        - vault_address
-        - vault_unseal_keys
+        - vault_address:
+            description : "URL naar Vault, bijvoorbeeld `https://"
+        - vault_unseal_keys:
+            description : "Unseal keys"
 
   # Secret engine actions
   - get_secret_engine:
@@ -75,10 +107,29 @@ actions:
   - import_secrets:
       description : "Importeer een secret in Vault."
       icon : "media/icon_vault.png"
+      parameters:
+        - vault_address:
+            description : "URL naar Vault, bijvoorbeeld `https://192.168.1.0:8200`."
+            required : true
+            value: ""
+        - vault_token:
+            description : "Token voor toegang tot Vault."
+            required : true
+            value: ""
 
   - export_secrets:
       description : "Exporteer een secret uit Vault."
       icon : "media/icon_vault.png"
+      parameters:
+        - vault_address:
+            description : "URL naar Vault, bijvoorbeeld `https://192.168.1.0:8200`."
+            required : true
+            value: ""
+        - vault_token:
+            description : "Token voor toegang tot Vault."
+            required : true
+            value: ""
+
 
   # Policy actions
   - get_policy:

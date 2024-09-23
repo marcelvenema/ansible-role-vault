@@ -32,11 +32,11 @@
   when: action == "update"
 
 - name: Start start action...
-  ansible.builtin.include_tasks: start.yml
+  ansible.builtin.include_tasks: administration.yml
   when: action == "start"
 
 - name: Start stop action...
-  ansible.builtin.include_tasks: stop.yml
+  ansible.builtin.include_tasks: administration.yml
   when: action == "stop"
 
 - name: Start unseal action...
@@ -65,7 +65,7 @@
   ansible.builtin.include_tasks: secrets.yml
   when: action == "create_secret"
 
-- name: Start destoy_secret action...
+- name: Start destroy_secret action...
   ansible.builtin.include_tasks: secrets.yml
   when: action == "destroy_secret"
 
