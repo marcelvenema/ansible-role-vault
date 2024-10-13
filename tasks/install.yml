@@ -15,14 +15,14 @@
     that: 'item is defined'
     fail_msg: "Required variable '{{ item }}' has not been provided."
     quiet: true
-  with_items: 
+  with_items:
     - vault_repository_url
 
 #########################################################
 ## Pre-installation                                    ##
 #########################################################
 
-# variables are copied to role variables, so this code block can be a template 
+# variables are copied to role variables, so this code block can be a template
 # and used in multiple roles
 
 # Set var role_repository_url
@@ -84,8 +84,8 @@
 # Override platform check if platform variable is defined.
 - name: See on which platform it can be installed...
   ansible.builtin.set_fact:
-    platform_check: true 
-  when: platform is undefined 
+    platform_check: true
+  when: platform is undefined
 
 # Set platform if podman is detected
 - name: Set platform to Podman...
@@ -114,8 +114,8 @@
 # Clear variable
 - name: Clear variabes...
   ansible.builtin.set_fact:
-    platform_check: undefined 
-  
+    platform_check: undefined
+
 #########################################################
 ## Pre-installation uninstall                          ##
 #########################################################
@@ -138,7 +138,7 @@
 
     # Create podman user group
     - name: Create Podman user group...
-      ansible.builtin.group: 
+      ansible.builtin.group:
         name: "podman"
       become: true
 
@@ -215,7 +215,7 @@
 - name: "Install {{ role_container_name }} container on podman..."
   when: platform == "podman"
   block:
-  
+
     # Check if podman is detected
     - name: Gather information...
       ansible.builtin.assert:
@@ -223,7 +223,7 @@
         fail_msg: "Podman is not installed. Please install Podman first. Cannot continue..."
 
     ##################################
-    # Import container image         # 
+    # Import container image         #
     ##################################
     # Pull container image, if failed try to use local file
     # local file can be http, https, ftp or local file
@@ -270,7 +270,7 @@
           ansible.builtin.copy:
             src: "{{ role_repository_url }}"
             dest: "/tmp/{{ role_container_name }}.tar"
-          when: 
+          when:
             - repository_url_result.stat.exists == true
 
       # Download local file if http or https
@@ -279,7 +279,7 @@
             url: "{{ role_repository_url }}"
             dest: "/tmp/{{ role_container_name }}.tar"
           when: ("http" in role_repository_url) or ("ftp" in role_repository_url) # https is included
-        
+
         # check if container file exists
         - name: "Check if /tmp/{{ role_container_name }}.tar exists..."
           ansible.builtin.stat:
@@ -290,11 +290,11 @@
         - name: Fail if container image file not found...
           ansible.builtin.fail:
             msg: "Repository URL {{ role_repository_url }} not found. Container image file location not found. Cannot continue..."
-          when: 
+          when:
             - container_tar_result.stat.exists == false
 
         ##################################
-        # Checksum image                 # 
+        # Checksum image                 #
         ##################################
 
         # If checksum contains :, split it in checksum and algorithm
@@ -311,13 +311,13 @@
             checksum_algorithm: "{{ role_repository_checksum_algorithm }}"
             get_checksum: yes
           register: checksum_result
-          when : role_repository_checksum is defined 
+          when : role_repository_checksum is defined
 
         # Fail when checksum is not the same
         - name: Fail when checksum is not correct...
           ansible.builtin.fail:
             msg: "Checksum of /tmp/{{ role_container_name }}.tar ({{ checksum_result.stat.checksum }}) is not the same as the provided checksum ({{ vault_repository_checksum }}). Cannot continue..."
-          when: 
+          when:
             - role_repository_checksum is defined
             - checksum_result.stat.checksum != role_repository_checksum
 
@@ -355,7 +355,7 @@
     # Set fact vault_uid
     - name: "Register uid of user ({{ service_user }})..."
       ansible.builtin.set_fact:
-        podman_uid: "{{ service_user_details.uid }}"  
+        podman_uid: "{{ service_user_details.uid }}"
 
     # Create Hashicorp Vault container
     - name: "Create container {{ role_container_name }} with id {{ image_id }}..."
@@ -401,7 +401,7 @@
         name: container
         image: "{{ image_id }}"
         state: absent
-    
+
     # Prune containers
     - name: Prune before starting container...
       containers.podman.podman_prune:
@@ -413,7 +413,7 @@
       ansible.builtin.systemd_service:
         daemon_reload: yes
         scope: system
-    
+
     # Enable systemd service for container
     - name: "Enable systemd service for {{ role_container_name }} container..."
       become: true
@@ -433,7 +433,7 @@
     - name: Debug message
       ansible.builtin.debug:
         msg: "Install container on kubernetes"
-  
+
     # Show information message
     - name: This part is not (yet) implemented.
       ansible.builtin.debug:
@@ -458,7 +458,7 @@
         dest: "/tmp/{{ role_container_name }}.zip"
         mode: 0755
         validate_certs: false
-      register: repository_url_result 
+      register: repository_url_result
 
     # Unzip Hashicorp Vault
     - name: "Unzip Hashicorp Vault..."
@@ -492,15 +492,10 @@
   ansible.builtin.set_fact:
     vault_address: "http://{{ ansible_default_ipv4.address }}:{{ vault_container_ports[0].split(':')[0] }}"
 
-# Debug message
-- name: Debug message
-  ansible.builtin.debug:
-    msg: "Vault address: {{ vault_address }}"
-
 # Configure Hashicorp Vault
 - name: Configure application
   ansible.builtin.include_tasks: configure.yml
-  vars: 
+  vars:
     action: configure
 
 #########################################################
@@ -517,4 +512,3 @@
     role_container_name:
     role_container_ports:
     role_container_volumes:
-    
