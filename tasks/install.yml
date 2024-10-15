@@ -19,54 +19,6 @@
     - vault_repository_url
 
 #########################################################
-## Pre-installation                                    ##
-#########################################################
-
-# variables are copied to role variables, so this code block can be a template
-# and used in multiple roles
-
-# Set var role_repository_url
-- name: "Determine url {{ vault_repository_url }}..."
-  ansible.builtin.set_fact:
-    role_repository_url: "{{ vault_repository_url }}"
-
-# Set role_repository_tag if defined
-- name: Determine tag...
-  ansible.builtin.set_fact:
-    role_repository_tag: "{{ vault_repository_tag }}"
-  when: vault_repository_tag is defined
-
-# Set role_repository_checksum if defined
-- name: Determine checksum...
-  ansible.builtin.set_fact:
-    role_repository_checksum: "{{ vault_repository_checksum }}"
-  when: vault_repository_checksum is defined
-
-# Set role_repository_checksum_algorithm if defined
-- name: Determine checksum algorithm...
-  ansible.builtin.set_fact:
-    role_repository_checksum_algorithm: "{{ vault_repository_checksum_algorithm }}"
-  when: vault_repository_checksum_algorithm is defined
-
-# Set container name
-- name: Determine container name...
-  ansible.builtin.set_fact:
-    role_container_name: "{{ vault_container_name }}"
-  when: vault_container_name is defined
-
-# Set container ports
-- name: Determine container ports...
-  ansible.builtin.set_fact:
-    role_container_ports: "{{ vault_container_ports }}"
-  when: vault_container_ports is defined
-
-# Set container volumes
-- name: Determine container volumes...
-  ansible.builtin.set_fact:
-    role_container_volumes: "{{ vault_container_volumes }}"
-  when: vault_container_volumes is defined
-
-#########################################################
 ## Pre-installation platform check                     ##
 #########################################################
 
@@ -127,299 +79,78 @@
   when: uninstall == true or uninstall is not defined
 
 #########################################################
-## Pre-installation user/group                         ##
-#########################################################
-# use user podman with podman containers, if not exists or not using podman, use vault user
-
-# create podman user and group when platform is podman
-- name: Create user/group for podman platform...
-  when: platform == "podman"
-  block:
-
-    # Create podman user group
-    - name: Create Podman user group...
-      ansible.builtin.group:
-        name: "podman"
-      become: true
-
-    # Create podman user
-    - name: Create Podman user...
-      ansible.builtin.user:
-        name: "podman"
-        group: "podman"
-        system: true
-        shell: "/bin/bash"
-        comment: "Podman user"
-        createhome: "yes"
-        state: present
-
-    # Enable linger for user
-    - name: Enable linger for Podman user...
-      ansible.builtin.command: "loginctl enable-linger podman"
-
-    # Create folder for ansible tmp files
-    - name: Create home folders for user...
-      ansible.builtin.file:
-        path: /home/podman/.ansible/tmp
-        state: directory
-        owner: podman
-        mode: 0755
-
-    # Create systemd folder for user
-    - name: Create systemd folder for user...
-      ansible.builtin.file:
-        path: "/home/podman/.config/systemd/user/"
-        state: directory
-        owner: podman
-        mode: 0755
-
-    # Set variable service_user
-    - name: Set variable (service_user)...
-      ansible.builtin.set_fact:
-        service_user: "podman"
-
-# TODO: create user for kubernetes, local
-
-#########################################################
-## Pre-installation folders                            ##
-#########################################################
-
-# Create folders from first part of container_volumes
-- name: Create data folders...
-  ansible.builtin.file:
-    path: "{{ item.split(':')[0] }}"
-    state: directory
-    owner: "{{ service_user}}"
-    mode: "0766"
-  with_items: "{{ vault_container_volumes }}"
-
-#########################################################
-## Pre-installation configuration                      ##
-#########################################################
-
-# Create Hashicorp Vault configuration
-- name: Create Hashicorp Vault configuration...
-  ansible.builtin.template:
-    src: ./templates/vault.podman_config.hcl.j2
-    dest: "{{ vault_data_dir }}/config/vault.hcl"
-    owner: "{{ service_user}}"
-
-#########################################################
-## Installation                                        ##
-#########################################################
-
-#########################################################
 ## Installation on podman                              ##
 #########################################################
 
 - name: "Install {{ role_container_name }} container on podman..."
   when: platform == "podman"
   block:
-
+    
     # Check if podman is detected
     - name: Gather information...
       ansible.builtin.assert:
         that: '"podman" in ansible_facts.packages'
         fail_msg: "Podman is not installed. Please install Podman first. Cannot continue..."
 
-    ##################################
-    # Import container image         #
-    ##################################
-    # Pull container image, if failed try to use local file
-    # local file can be http, https, ftp or local file
-
-    # If tag is not defined, set value to latest
-    - name: Validate repository_tag...
+    # Set variable service_user
+    - name: Set variable (podman_service_user)...
       ansible.builtin.set_fact:
-        role_repository_tag: "latest"
-      when: role_repository_tag is not defined or role_repository_tag == "" or role_repository_tag == none
-
-    # Show information
-    - name: Show information
-      ansible.builtin.debug:
-        msg: "Get container image from registry. this may take a while..."
-
-    # Pull image from repository to local image repository.
-    - name: "Pull {{ role_container_name }} image from repository {{ role_repository_url}}:{{ role_repository_tag }}..."
-      containers.podman.podman_image:
-        name: "{{ role_repository_url }}"
-        tag: "{{ role_repository_tag }}"
-      register: pull_result
-      ignore_errors: true
-
-    # If pull failed, try to use local file
-    - name: Pull failed, install local image file...
-      when: pull_result is failed
-      block:
-
-        # Delete local temp file
-        - name: "Delete local files..."
-          ansible.builtin.file:
-            path: "/tmp/{{ role_container_name }}.tar"
-            state: absent
-
-        # Check if file exists on ansible host
-        - name: "Gather information about {{ role_repository_url }}..."
-          ansible.builtin.stat:
-            path: "{{ role_repository_url }}"
-          register: repository_url_result
-          delegate_to: localhost
-
-       # Copy image file to destination if local file
-        - name: Copy container image file to destination...
-          ansible.builtin.copy:
-            src: "{{ role_repository_url }}"
-            dest: "/tmp/{{ role_container_name }}.tar"
-          when:
-            - repository_url_result.stat.exists == true
-
-      # Download local file if http or https
-        - name: "Download file from {{ role_repository_url }}..."
-          ansible.builtin.get_url:
-            url: "{{ role_repository_url }}"
-            dest: "/tmp/{{ role_container_name }}.tar"
-          when: ("http" in role_repository_url) or ("ftp" in role_repository_url) # https is included
-
-        # check if container file exists
-        - name: "Check if /tmp/{{ role_container_name }}.tar exists..."
-          ansible.builtin.stat:
-            path: "/tmp/{{ role_container_name }}.tar"
-          register: container_tar_result
-
-        # Fail if image file not found
-        - name: Fail if container image file not found...
-          ansible.builtin.fail:
-            msg: "Repository URL {{ role_repository_url }} not found. Container image file location not found. Cannot continue..."
-          when:
-            - container_tar_result.stat.exists == false
-
-        ##################################
-        # Checksum image                 #
-        ##################################
-
-        # If checksum contains :, split it in checksum and algorithm
-        - name: Split checksum and algorithm...
-          ansible.builtin.set_fact:
-            repository_checksum: "{{ role_repository_checksum.split(':')[1] }}"
-            repository_checksum_algorithm: "{{ role_repository_checksum.split(':')[0] }}"
-          when: role_repository_checksum is defined and ":" in role_repository_checksum
-
-        # Get checksum of container file.tar
-        - name: Get checksum of local container file...
-          ansible.builtin.stat:
-            path: "/tmp/{{ role_container_name }}.tar"
-            checksum_algorithm: "{{ role_repository_checksum_algorithm }}"
-            get_checksum: yes
-          register: checksum_result
-          when : role_repository_checksum is defined
-
-        # Fail when checksum is not the same
-        - name: Fail when checksum is not correct...
-          ansible.builtin.fail:
-            msg: "Checksum of /tmp/{{ role_container_name }}.tar ({{ checksum_result.stat.checksum }}) is not the same as the provided checksum ({{ vault_repository_checksum }}). Cannot continue..."
-          when:
-            - role_repository_checksum is defined
-            - checksum_result.stat.checksum != role_repository_checksum
-
-        # Load image from file if pull failed
-        - name: Import container image to podman...
-          ansible.builtin.command: "podman load -i /tmp/{{ role_container_name }}.tar"
-          register: import_result
-
-        # Cleanup image file
-        - name: Cleanup container image file...
-          ansible.builtin.file:
-            path: "/tmp/{{ role_container_name }}.tar"
-            state: absent
-
-    # Get image info from podman
-    - name: Gather info on container image...
-      containers.podman.podman_image_info:
-      register: images_info
-
-    # Find image id
-    - name: Parse image info, select container image id...
-      ansible.builtin.set_fact:
-        image_id: "{{ images_info.images | selectattr('RepoTags', 'search', role_container_name) | map(attribute='Id') | first }}"
-
-    ##################################
-    # Create Vault container         #
-    ##################################
+        podman_service_user: "podman"
 
     # Get uid of user podman
-    - name: "Get uid of user ({{ service_user }})..."
+    - name: "Get uid of user ({{ podman_service_user }})..."
       ansible.builtin.user:
-        name: "{{ service_user }}"
-      register: service_user_details
+        name: "{{ podman_service_user }}"
+      register: podman_service_user_details
 
     # Set fact vault_uid
-    - name: "Register uid of user ({{ service_user }})..."
+    - name: "Register uid of user ({{ podman_service_user }})..."
       ansible.builtin.set_fact:
-        podman_uid: "{{ service_user_details.uid }}"
+        podman_uid: "{{ podman_service_user_details.uid }}"
 
-    # Create Hashicorp Vault container
-    - name: "Create container {{ role_container_name }} with id {{ image_id }}..."
-      become: true
-      containers.podman.podman_container:
-        name: "{{ role_container_name}}"
-        image: "{{ image_id }}"
-        cap_add: IPC_LOCK
-        security_opt: label=disable
-        privileged: true
-        user: "{{ podman_uid }}"
-        command: vault server -config=/vault/config/vault.hcl
-        ports: "{{ role_container_ports }}"
-        volumes: "{{ role_container_volumes }}"
-        restart_policy: always
-        env:
-          SKIP_CHOWN: true
-          SKIP_SETCAP: true
+    # Create volumes
+    - name: Create Hashicorp Vault configuration folders...
+      ansible.builtin.include_role:
+        name: podman
+      vars:
+        action: create_volumes
+        volume_owner: "{{ podman_service_user }}"
+        container_volumes: "{{ vault_container_volumes }}"
 
-    # Wait for Hashicorp Vault to start
-    - name: Wait for Hashicorp Vault container to start...
-      ansible.builtin.wait_for:
-        host: localhost
-        port: "{{ role_container_ports[0].split(':')[0] }}"
-        delay: 5
-        timeout: 60
+    # Create SSL certificate
+    - name: Create SSL certificate for Hashicorp Vault...
+      ansible.builtin.include_tasks:
+        file: create_ssl_certificate.yml
+      vars:
+        owner: "{{ podman_service_user }}"
 
-    ##################################
-    # Configure autostart container  #
-    ##################################
+    # Create configuration file
+    - name: Create Hashicorp Vault configuration file...
+      ansible.builtin.template:
+        src: ./templates/vault.podman_config.hcl.j2
+        dest: "{{ podman_data_folder }}/vault/config/vault.hcl"
+        owner: "{{ podman_service_user }}"
 
-    # Auto-start Vault container on system boot
-    - name: Generate systemd unit file for auto-start Vault container...
-      containers.podman.podman_generate_systemd:
-        name: vault
-        new: true
-        no_header: true
-        dest: /etc/systemd/system
-
-    # Stop Vault container
-    - name: Stop Podman container...
-      containers.podman.podman_container:
-        name: container
-        image: "{{ image_id }}"
-        state: absent
-
-    # Prune containers
-    - name: Prune before starting container...
-      containers.podman.podman_prune:
-        volume: true
-
-    # Reload systemd
-    - name: Reload systemd...
-      become: true
-      ansible.builtin.systemd_service:
-        daemon_reload: yes
-        scope: system
-
-    # Enable systemd service for container
-    - name: "Enable systemd service for {{ role_container_name }} container..."
-      become: true
-      ansible.builtin.service:
-        name: "container-{{ role_container_name }}.service"
-        enabled: yes
+    # Import container
+    - name: "Install {{ nexus_container_name }} container on podman"
+      ansible.builtin.include_role:
+        name: podman
+      vars:
+        action: import_container
+        container_repository_url: "{{ vault_repository_url }}"
+        container_repository_tag: "{{ vault_repository_tag | default('latest') }}"
+        container_repository_checksum: "{{ vault_repository_checksum }}"
+        container_repository_checksum_algorithm: "{{ vault_repository_checksum_algorithm }}"
+        container_name: "{{ vault_container_name }}"
+        container_ports: "{{ vault_container_ports }}"
+        container_volumes: "{{ vault_container_volumes }}"
+        container_volumes_owner: "{{ service_user }}"
+        container_command: "vault server -config=/vault/config/vault.hcl"
+        container_user: "{{ podman_uid }}"
+        container_security_opt: ["label=disable"]
+        container_privileged: true
+        container_cap_add: IPC_LOCK
+        container_env: "{{ vault_container_env | default({}) }}"
 
 #########################################################
 ## Installation on kubernetes                         ##
@@ -490,7 +221,7 @@
 # Get ip address
 - name: Register variable (vault_address)...
   ansible.builtin.set_fact:
-    vault_address: "http://{{ ansible_default_ipv4.address }}:{{ vault_container_ports[0].split(':')[0] }}"
+    vault_address: "https://{{ ansible_default_ipv4.address }}:{{ vault_container_ports[0].split(':')[0] }}"
 
 # Configure Hashicorp Vault
 - name: Configure application
@@ -503,12 +234,5 @@
 #########################################################
 
 # Unset variables
-- name: Unset variables
-  ansible.builtin.set_fact:
-    role_repository_url:
-    role_repository_tag:
-    role_repository_checksum:
-    role_repository_checksum_algorithm:
-    role_container_name:
-    role_container_ports:
-    role_container_volumes:
+#- name: Unset variables
+#  ansible.builtin.set_fact:

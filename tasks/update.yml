@@ -71,10 +71,10 @@
     - name: Validate repository_tag, set default
       ansible.builtin.set_fact:
         repository_tag: "latest"
-      when: repository_tag is not defined or repository_tag == "" or repository_tag == none
+      when: vault_repository_tag is not defined or vault_repository_tag == "" or vault_repository_tag == none
 
     # Pull image from repository to local image repository. If failed, lookup local image file.
-    - name: "Pull Vault container image from repository {{ repository_url}}:{{ repository_tag }}"
+    - name: "Pull Vault container image from repository {{ vault_repository_url}}:{{ vault_repository_tag }}"
       containers.podman.podman_image:
         name: "{{ repository_url }}"
         tag: "{{ repository_tag }}"

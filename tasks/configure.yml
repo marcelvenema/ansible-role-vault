@@ -58,9 +58,9 @@
 - name: Save Vault root token to file...
   ansible.builtin.copy:
     content: "{{ vault_token }}"
-    dest: "{{ vault_data_dir }}/config/vault_token"
-    owner: "{{ service_user }}"
-    group: "{{ service_user }}"
+    dest: "{{ podman_data_folder }}/vault/config/vault_token"
+    owner: "{{ podman_service_user }}"
+    group: "{{ podman_service_user }}"
     mode: 0600
   when: vault_init_status.initialized == false
 
@@ -68,9 +68,9 @@
 - name: Save Vault unseal keys to file...
   ansible.builtin.copy:
     content: "{{ vault_unseal_keys }}"
-    dest: "{{ vault_data_dir }}/config/vault_unseal_keys"
-    owner: "{{ service_user }}"
-    group: "{{ service_user }}"
+    dest: "{{ podman_data_folder }}/vault/config/vault_unseal_keys"
+    owner: "{{ podman_service_user }}"
+    group: "{{ podman_service_user }}"
     mode: 0600
   when: vault_init_status.initialized == false
 
@@ -85,7 +85,7 @@
     action: "unseal"
 
 #########################################################
-## Enable services                                     ##
+## Authentication                                      ##
 #########################################################
 
 # Enable Vault AppRole
@@ -101,6 +101,24 @@
     body:
       type: "approle"
       description: "AppRole authentication method for applications"
+
+# Enable Vault username and password
+- name: Enable Hashicorp Vault Username & Password...
+  ansible.builtin.uri:
+    url: "{{ vault_address }}/v1/sys/auth/userpass"
+    validate_certs: false 
+    method: POST
+    status_code: 204
+    headers:
+      X-Vault-Token: "{{ vault_token }}"     
+    body_format: json
+    body:
+      type: "approle"
+      description: "Username and password authentication"
+
+#########################################################
+## Enable services                                     ##
+#########################################################
 
 # Enable Vault PKI Secrets Engine
 - name: Enable Hashicorp Vault PKI Secrets Engine...

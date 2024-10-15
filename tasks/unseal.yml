@@ -42,6 +42,4 @@
   with_items:
     - "{{ vault_unseal_keys }}"
   when:
-    - vault_health_response.status == 503
-    - vault_health_response.status != 501
-    - vault_unseal_keys is defined
+    - vault_health_response.json.sealed == true

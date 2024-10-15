@@ -1,16 +1,17 @@
 #
 ui = true
-api_addr = "http://0.0.0.0:8200"
-cluster_addr = "http://0.0.0.0:8201"
+api_addr = "https://127.0.0.1:8200"
 disable_mlock = true
 default_lease_ttl = "168h"
 max_lease_ttl = "720h"
 
-backend "file" {
+storage "file" {
   path    = "/vault/file"
 }
 
 listener "tcp" {
   address     = "0.0.0.0:8200"
-  tls_disable = "true"
+  tls_disable = "false"
+  tls_cert_file   = "/vault/certs/public.crt"
+  tls_key_file    = "/vault/certs/private.key"
 }
