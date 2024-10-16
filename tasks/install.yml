@@ -22,51 +22,13 @@
 ## Pre-installation platform check                     ##
 #########################################################
 
-# Gather installed packages
-- name: Gather installed packages...
-  ansible.builtin.package_facts:
-    manager: auto
-
-# Bypass platform check if platform is defined
-- name: Bypass platform check if variable (platform) is defined...
-  ansible.builtin.set_fact:
-    platform_check: false
-  when: platform is defined
-
-# Override platform check if platform variable is defined.
-- name: See on which platform it can be installed...
-  ansible.builtin.set_fact:
-    platform_check: true
-  when: platform is undefined
-
-# Set platform if podman is detected
-- name: Set platform to Podman...
-  ansible.builtin.set_fact:
-    platform: "podman"
-    platform_check: false
-  when:
-    - '"podman" in ansible_facts.packages'
-    - platform_check == true
-
-# Set platform if kubernetes is detected
-- name: Set platform to Kubernetes...
-  ansible.builtin.set_fact:
-    platform: "kubernetes"
-    platform_check: false
-  when:
-    - '"kubernetes" in ansible_facts.packages'
-    - platform_check == true
-
-# Set platform to host if no podman or no kubernetes is detected
-- name: Set platform to host...
-  ansible.builtin.set_fact:
-    platform: "host"
-  when: platform_check == true
-
-# Clear variable
-- name: Clear variabes...
-  ansible.builtin.set_fact:
-    platform_check: undefined
+# Determine platform
+- name: Determine platform for installation...
+  ansible.builtin.include_role:
+    name: server-config
+  vars:
+    action: "platform_check"
+  register: platform
 
 #########################################################
 ## Pre-installation uninstall                          ##
@@ -85,7 +47,7 @@
 - name: "Install {{ role_container_name }} container on podman..."
   when: platform == "podman"
   block:
-    
+
     # Check if podman is detected
     - name: Gather information...
       ansible.builtin.assert:
@@ -103,13 +65,13 @@
         name: "{{ podman_service_user }}"
       register: podman_service_user_details
 
-    # Set fact vault_uid
+    # Set uid of user podman
     - name: "Register uid of user ({{ podman_service_user }})..."
       ansible.builtin.set_fact:
         podman_uid: "{{ podman_service_user_details.uid }}"
 
     # Create volumes
-    - name: Create Hashicorp Vault configuration folders...
+    - name: Create configuration folders...
       ansible.builtin.include_role:
         name: podman
       vars:
@@ -144,7 +106,6 @@
         container_name: "{{ vault_container_name }}"
         container_ports: "{{ vault_container_ports }}"
         container_volumes: "{{ vault_container_volumes }}"
-        container_volumes_owner: "{{ service_user }}"
         container_command: "vault server -config=/vault/config/vault.hcl"
         container_user: "{{ podman_uid }}"
         container_security_opt: ["label=disable"]

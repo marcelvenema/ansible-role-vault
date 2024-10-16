@@ -1,5 +1,7 @@
 ---
 
+# Variabelen voor configuratie van de container
+
 # vault_repository_url can be an url to docker image or a tar file. example: "https://docker.io/sonatype/nexus3" or "/tmp/nexus3.67.1.tar", "https://192.168.1.1/repo/nexus.tar".
 vault_repository_url: "docker.io/hashicorp/vault"
 # vault_repository_tag can be a tag of the image or a version of the tar file. example: "3.67.1" or "latest" Default is "latest".
@@ -8,11 +10,18 @@ vault_repository_url: "docker.io/hashicorp/vault"
 # vault_repository_checksum: ""
 # vault_repository_checksum_algorithm can be a checksum algorithm of the container file. example: "sha256", sha512", "md5".
 # vault_repository_checksum_algorithm: "sha256"
-
+# vault_container name is name of container used in podman or docker. example: "vault".
 vault_container_name: "vault"
+# vault_container_ports is a list of ports used in the container. example: ["8200:8200"] or ["8200:8200", "8201:8201"].
 vault_container_ports: ["8200:8200"]
+# vault_container_volumes is a list of volumes used in the container. example: ["vault/config:/vault/config:Z"] or ["vault/config:/vault/config:Z", "vault/file:/vault/file:Z"].
 vault_container_volumes: ["vault/config:/vault/config:Z", "vault/file:/vault/file:Z", "vault/logs:/vault/logs:Z", "vault/certs:/vault/certs:Z"]
+# vault_container_env is a list of environment variables used in the container.
 vault_container_env:
   SKIP_CHOWN: true
   SKIP_SETCAP: true
 
+# Variabelen voor configuratie van Hashicorp Vault
+
+# vault_validate_certs configures if the certificate of the server should be validated. example: true or false. 
+vault_validate_certs: false
