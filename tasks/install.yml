@@ -55,9 +55,9 @@
         fail_msg: "Podman is not installed. Please install Podman first. Cannot continue..."
 
     # Set variable service_user
-    - name: Set variable (podman_service_user)...
-      ansible.builtin.set_fact:
-        podman_service_user: "podman"
+    #- name: Set variable (podman_service_user)...
+    #  ansible.builtin.set_fact:
+    #    podman_service_user: "podman"
 
     # Get uid of user podman
     - name: "Get uid of user ({{ podman_service_user }})..."
