@@ -25,3 +25,8 @@ vault_container_env:
 
 # vault_validate_certs configures if the certificate of the server should be validated. example: true or false. 
 vault_validate_certs: false
+
+
+# variables SSL certificate
+# vault_ssl_certificate is the path to the SSL certificate file. example: "/etc/ssl/certs/vault.crt".
+# vault_ssl_certificate: ""
