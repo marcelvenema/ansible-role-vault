@@ -10,17 +10,6 @@
     ssl_subject: "/C=NL/ST=Flevoland/L=Lelystad/O=MinDef/OU=HGI/CN={{ ansible_fqdn }}"
     ssl_extensions: "subjectAltName = DNS:{{ ansible_fqdn }},IP:{{ ansible_default_ipv4.address }}"
 
-# debug
-- name: Debug message
-  ansible.builtin.debug:
-    msg:
-      - "owner: {{ owner }}"
-
-# debug
-- name: Debug message
-  ansible.builtin.debug:
-    msg:
-      - "folder: {{ folder }}"
 
 
 
@@ -34,8 +23,8 @@
 - name: Change ownership of SSL certificate files...
   ansible.builtin.file:
     path: "{{ podman_data_folder }}/vault/certs/{{ item }}"
-    owner: "{{ owner }}"
-    group: "{{ owner }}"
+    owner: "{{ podman_service_user }}"
+    group: "{{ podman_service_group }}"
     mode: "0744"
   loop:
     - private.key

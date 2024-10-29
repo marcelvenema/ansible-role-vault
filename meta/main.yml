@@ -1,7 +1,5 @@
 ---
-dependencies:
-  - role: podman
-  
+dependencies: []
 
 galaxy_info:
   author: "Marcel Venema"

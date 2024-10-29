@@ -78,9 +78,6 @@
     - name: Create SSL certificate for Hashicorp Vault...
       ansible.builtin.include_tasks:
         file: create_ssl_certificate.yml
-      vars:
-        owner: "{{ podman_service_user }}"
-        folder: "{{ podman_data_folder}}"
 
     # Create configuration file
     - name: Create Hashicorp Vault configuration file...
