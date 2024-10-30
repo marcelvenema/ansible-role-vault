@@ -59,8 +59,7 @@
   ansible.builtin.copy:
     content: "{{ vault_token }}"
     dest: "{{ podman_data_folder }}/vault/config/vault_token"
-    owner: "{{ podman_service_user }}"
-    group: "{{ podman_service_group }}"
+    owner: "{{ vault_container_user }}"
     mode: 0600
   when: vault_init_status.initialized == false
 
@@ -69,8 +68,7 @@
   ansible.builtin.copy:
     content: "{{ vault_unseal_keys }}"
     dest: "{{ podman_data_folder }}/vault/config/vault_unseal_keys"
-    owner: "{{ podman_service_user }}"
-    group: "{{ podman_service_group }}"
+    owner: "{{ vault_container_user }}"
     mode: 0600
   when: vault_init_status.initialized == false
 

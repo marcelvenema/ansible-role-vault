@@ -20,6 +20,8 @@ vault_container_volumes: ["vault/config:/vault/config:Z", "vault/file:/vault/fil
 vault_container_env:
   SKIP_CHOWN: true
   SKIP_SETCAP: true
+# vault_container_user is the user used in the container. example: "1000".
+vault_container_user: "vault"
 
 # Variabelen voor configuratie van Hashicorp Vault
 

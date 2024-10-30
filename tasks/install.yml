@@ -54,16 +54,26 @@
         that: '"podman" in ansible_facts.packages'
         fail_msg: "Podman is not installed. Please install Podman first. Cannot continue..."
 
-    # Get uid of user podman
-    - name: "Get uid of user ({{ podman_service_user }})..."
+    # Create vault user
+    - name: Create user ({{ vault_container_user }})...
       ansible.builtin.user:
-        name: "{{ podman_service_user }}"
-      register: podman_service_user_details
+        name: "{{ vault_container_user }}"
+        comment: "Hashicorp Vault user"
+        shell: /bin/bash
+        createhome: yes
+        system: yes
+        state: present
+
+    # Get uid of user podman
+    - name: "Get uid of user ({{ vault_container_user }})..."
+      ansible.builtin.user:
+        name: "{{ vault_container_user }}"
+      register: vault_container_user_details
 
     # Set uid of user podman
-    - name: "Register uid of user ({{ podman_service_user }})..."
+    - name: "Register uid of user ({{ vault_container_user }})..."
       ansible.builtin.set_fact:
-        podman_uid: "{{ podman_service_user_details.uid }}"
+        vault_coontainer_user_uid: "{{ vault_container_user_details.uid }}"
 
     # Create volumes
     - name: Create configuration folders...
@@ -71,20 +81,23 @@
         name: podman
       vars:
         action: create_volumes
-        volume_owner: "{{ podman_service_user }}"
+        volume_owner: "{{ vault_container_user }}"
         container_volumes: "{{ vault_container_volumes }}"
 
     # Create SSL certificate
     - name: Create SSL certificate for Hashicorp Vault...
       ansible.builtin.include_tasks:
         file: create_ssl_certificate.yml
+      vars:
+        destination_folder: "{{ podman_data_folder }}/vault/certs" 
+        user: "{{ vault_container_user}}"
 
     # Create configuration file
     - name: Create Hashicorp Vault configuration file...
       ansible.builtin.template:
         src: ./templates/vault.podman_config.hcl.j2
         dest: "{{ podman_data_folder }}/vault/config/vault.hcl"
-        owner: "{{ podman_service_user }}"
+        owner: "{{ vault_container_user }}"
 
     # Import container
     - name: "Install {{ nexus_container_name }} container on podman"
@@ -100,7 +113,7 @@
         container_ports: "{{ vault_container_ports }}"
         container_volumes: "{{ vault_container_volumes }}"
         container_command: "vault server -config=/vault/config/vault.hcl"
-        container_user: "{{ podman_uid }}"
+        container_user: "{{ vault_container_user_uid }}"
         container_security_opt: ["label=disable"]
         container_privileged: true
         container_cap_add: IPC_LOCK

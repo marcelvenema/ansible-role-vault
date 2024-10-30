@@ -10,21 +10,17 @@
     ssl_subject: "/C=NL/ST=Flevoland/L=Lelystad/O=MinDef/OU=HGI/CN={{ ansible_fqdn }}"
     ssl_extensions: "subjectAltName = DNS:{{ ansible_fqdn }},IP:{{ ansible_default_ipv4.address }}"
 
-
-
-
 # Run command
 - name: Create SSL certificate
   ansible.builtin.command:
-    cmd: "openssl req -new -newkey rsa:2048 -sha256 -days 3650 -nodes -x509 -extensions v3_ca -keyout {{ podman_data_folder}}/vault/certs/private.key -out {{ podman_data_folder }}/vault/certs/public.crt -subj '{{ ssl_subject }}' -addext '{{ ssl_extensions }}'"
+    cmd: "openssl req -new -newkey rsa:2048 -sha256 -days 3650 -nodes -x509 -extensions v3_ca -keyout {{ destination_folder }}/private.key -out {{ destination_folder }}/public.crt -subj '{{ ssl_subject }}' -addext '{{ ssl_extensions }}'"
   register: action_result
 
   # Change ownership of files
 - name: Change ownership of SSL certificate files...
   ansible.builtin.file:
-    path: "{{ podman_data_folder }}/vault/certs/{{ item }}"
-    owner: "{{ podman_service_user }}"
-    group: "{{ podman_service_group }}"
+    path: "{{ destination_folder }}/{{ item }}"
+    owner: "{{ user }}"
     mode: "0744"
   loop:
     - private.key
