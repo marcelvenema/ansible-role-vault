@@ -97,4 +97,11 @@
 #########################################################
 ## Post-uninstall                                      ##
 #########################################################
-    
+
+# Unset variables
+- name: Unset variables
+  set_fact:
+    vault_container_name: null
+    vault_container_volumes: null
+    keep_data: null
+

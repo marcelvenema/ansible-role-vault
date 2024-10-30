@@ -131,3 +131,13 @@
     body:
       type: "pki"
       description: "PKI secrets engine for certificates"
+
+#########################################################
+## Post-configuration                                  ##
+#########################################################
+
+# Unset variables
+- name: Unset variables...
+  ansible.builtin.set_fact:
+    vault_init_status: null
+    vault_init_results: null

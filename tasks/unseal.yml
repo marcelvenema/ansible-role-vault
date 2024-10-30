@@ -43,3 +43,12 @@
     - "{{ vault_unseal_keys }}"
   when:
     - vault_health_response.json.sealed == true
+
+#########################################################
+## Post-actions                                        ##
+#########################################################
+
+# Unset variables
+- name: Unset variables...
+  ansible.builtin.set_fact:
+    vault_health_response: null

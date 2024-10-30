@@ -128,4 +128,17 @@
         state: absent
       when: pull_result is failed
 
+#########################################################
+## Post-actions                                        ##
+#########################################################
 
+# Unset variables
+- name: Unset variables...
+  ansible.builtin.set_fact:
+    repository_url: null
+    repository_tag: null
+    pull_result: null
+    repository_url_result: null
+    import_result: null
+    image_info_result: null
+    image_id: null

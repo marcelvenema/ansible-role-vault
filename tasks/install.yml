@@ -150,10 +150,10 @@
   block:
 
     # Download Hashicorp Vault from url
-    - name: "Download Hashicorp Vault from {{ role_repository_url }}..."
+    - name: "Download Hashicorp Vault from {{ vault_repository_url }}..."
       ansible.builtin.get_url:
-        url: "{{ role_repository_url }}"
-        dest: "/tmp/{{ role_container_name }}.zip"
+        url: "{{ vault_repository_url }}"
+        dest: "/tmp/{{ vault_container_name }}.zip"
         mode: 0755
         validate_certs: false
       register: repository_url_result
@@ -161,7 +161,7 @@
     # Unzip Hashicorp Vault
     - name: "Unzip Hashicorp Vault..."
       ansible.builtin.unarchive:
-        src: "/tmp/{{ role_container_name }}.zip"
+        src: "/tmp/{{ vault_container_name }}.zip"
         dest: /usr/local/bin
 
     # Autostart Vault on system boot
@@ -201,5 +201,16 @@
 #########################################################
 
 # Unset variables
-#- name: Unset variables
-#  ansible.builtin.set_fact:
+- name: Unset variables...
+  ansible.builtin.set_fact:
+    vault_repository_url: null
+    vault_repository_tag: null
+    vault_repository_checksum: null
+    vault_repository_checksum_algorithm: null
+    vault_container_name: null
+    vault_container_ports: null
+    vault_container_volumes: null
+    vault_container_env: null
+    vault_container_user: null
+    vault_container_user_details: null
+    vault_container_user_uid: null
