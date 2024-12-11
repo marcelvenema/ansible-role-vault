@@ -3,68 +3,68 @@
 <table border="0">
   <tr>
     <td width="160px" valign="top"><img src="media/icon_vault.png" align="left" height="128" width="128" /></td>
-    <td>Ansible role voor installatie, configuratie, gebruik en beheer van Hashicorp Vault.<br/>
-        Afhankelijk van de infrastructuur wordt deze als Podman pod (docker container), kubernetes container of direct op het besturingssysteem geinstalleerd.<br/>
-        Vooralsnog is alleen installatie en configuratie als Podman pod beschikbaar.<br/>
+    <td>Ansible role for installation, configuration, usage, and management of Hashicorp Vault.<br/>
+        Depending on the infrastructure, it can be installed as a Podman pod (docker container), Kubernetes container, or directly on the operating system.<br/>
+        Currently, only installation and configuration as a Podman pod are available.<br/>
         <br/>
-        Website leverancier: `https://vaultproject.io`<br/>
+        Vendor website: `https://vaultproject.io`<br/>
         <br/>
     </td>
   </tr>
 </table>
 
-# Diensten:
+# Services:
 
 action: **install**<br/>
-Installatie van laatste versie van Hashicorp Vault. Basis configuratie.<br/>
+Installation of the latest version of Hashicorp Vault. Basic configuration.<br/>
 variables:<br/>
-<kbd>vault_repository_url</kbd> : URL met locatie van container repository. Kan een url zijn of pad naar lokaal of remote bestand, bijvoorbeeld 'docker.io/hashicorp/vault', '/tmp/vault.tar', 'https://192.168.1.1/repo/vault1.14.tar'. Standaard verwijst naar docker.io/hashicorp/vault via defaults/main.yml.<br/>
-<kbd>vault_repository_tag (optioneel)</kbd> : Release of versienummer van het image. Standaard is 'latest'.<br/>
-<kbd>vault_repository_checksum (optioneel)</kbd> : checksum van het container image. Voorbeeld: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" of "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".<br/>
-<kbd>vault_repository_checksum_algorithm (optioneel)</kbd> : algoritme voor de checksum, bijvoorbeeld sha256, sha512, md5, etc.<br/>
-<kbd>platform (optioneel)</kbd>  : installeer op specifiek platform, bijvoorbeeld podman, kubernetes, host. Standaard is autodetect. (podman, kubernetes, host)<br/>
-<kbd>uninstall (optioneel)</kbd> : true/false. Wanneer, true wordt voor installatie eerst uninstall gestart.<br/>
+<kbd>vault_repository_url</kbd> : URL with the location of the container repository. Can be a URL or path to a local or remote file, for example, 'docker.io/hashicorp/vault', '/tmp/vault.tar', 'https://192.168.1.1/repo/vault1.14.tar'. By default, it points to docker.io/hashicorp/vault via defaults/main.yml.<br/>
+<kbd>vault_repository_tag (optional)</kbd> : Release or version number of the image. Default is 'latest'.<br/>
+<kbd>vault_repository_checksum (optional)</kbd> : Checksum of the container image. Example: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" or "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".<br/>
+<kbd>vault_repository_checksum_algorithm (optional)</kbd> : Algorithm for the checksum, for example, sha256, sha512, md5, etc.<br/>
+<kbd>platform (optional)</kbd>  : Install on a specific platform, for example, podman, kubernetes, host. Default is autodetect. (podman, kubernetes, host)<br/>
+<kbd>uninstall (optional)</kbd> : true/false. When true, uninstall is started before installation.<br/>
 
 
 action: **uninstall**<br/>
-De-installatie van Hashicorp Vault.<br/>
+Uninstallation of Hashicorp Vault.<br/>
 variables:<br/>
-<kbd>keep_data (optioneel)</kbd> : true/false. Wanneer true, wordt bij uninstall data folders bewaard. Standaard false.<br/>
+<kbd>keep_data (optional)</kbd> : true/false. When true, data folders are preserved during uninstall. Default is false.<br/>
 
 
 action: **update**<br/>
-Update Hashicorp Vault naar de laatste versie. (backlog).<br/>
+Update Hashicorp Vault to the latest version. (backlog).<br/>
 variables:<br/>
-<kbd>vault_repository_url</kbd> : URL met locatie van container repository. Kan een url zijn of pad naar lokaal of remote bestand, bijvoorbeeld 'docker.io/hashicorp/vault', '/tmp/vault.tar', 'https://192.168.1.1/repo/vault1.14.tar'. Standaard verwijst naar docker.io/hashicorp/vault via defaults/main.yml.<br/>
-<kbd>vault_repository_tag (optioneel)</kbd> : Release of versienummer van het image. Standaard is 'latest'.<br/>
-<kbd>vault_repository_checksum (optioneel)</kbd> : checksum van het container image. Voorbeeld: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" of "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".<br/>
-<kbd>vault_repository_checksum_algorithm (optioneel)</kbd> : algoritme voor de checksum, bijvoorbeeld sha256, sha512, md5, etc.<br/>
-<kbd>platform (optioneel)</kbd>  : installeer op specifiek platform, bijvoorbeeld podman, kubernetes, host. Standaard is autodetect. (podman, kubernetes, host)<br/>
+<kbd>vault_repository_url</kbd> : URL with the location of the container repository. Can be a URL or path to a local or remote file, for example, 'docker.io/hashicorp/vault', '/tmp/vault.tar', 'https://192.168.1.1/repo/vault1.14.tar'. By default, it points to docker.io/hashicorp/vault via defaults/main.yml.<br/>
+<kbd>vault_repository_tag (optional)</kbd> : Release or version number of the image. Default is 'latest'.<br/>
+<kbd>vault_repository_checksum (optional)</kbd> : Checksum of the container image. Example: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" or "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".<br/>
+<kbd>vault_repository_checksum_algorithm (optional)</kbd> : Algorithm for the checksum, for example, sha256, sha512, md5, etc.<br/>
+<kbd>platform (optional)</kbd>  : Install on a specific platform, for example, podman, kubernetes, host. Default is autodetect. (podman, kubernetes, host)<br/>
 
 
 action: **start**<br/>
-Start van Hashicorp Vault service. (backlog).<br/>
-variablen:<br/>
-<kbd>(geen)</kbd> : Geen variabelen benodigd.<br/>
+Start of Hashicorp Vault service. (backlog).<br/>
+variables:<br/>
+<kbd>(none)</kbd> : No variables required.<br/>
 
 
 action: **stop**<br/>
-Stop van Hashicorp Vault service. (backlog).<br/>
-variablen:<br/>
-<kbd>(geen)</kbd> : Geen variabelen benodigd.<br/>
+Stop of Hashicorp Vault service. (backlog).<br/>
+variables:<br/>
+<kbd>(none)</kbd> : No variables required.<br/>
 
 
 action: **unseal**<br/>
-Unseal Vault zodat deze gereed is voor gebruik.<br/>
+Unseal Vault to make it ready for use.<br/>
 variables:<br/>
-<kbd>vault_address</kbd> : URL naar Vault, bijvoorbeeld `https://192.168.1.0:8200`.<br/>
-<kbd>vault_unseal_keys</kbd> : Unseal keys van Vault. Dit zijn de keys die zijn gegenereerd tijdens de installatie.<br/>
+<kbd>vault_address</kbd> : URL to Vault, for example, `https://192.168.1.0:8200`.<br/>
+<kbd>vault_unseal_keys</kbd> : Unseal keys of Vault. These are the keys generated during installation.<br/>
 
 
-Wanneer variable action niet is ingevuld, wordt gedetecteerd of Nexus Repository OSS al is geinstalleerd. Zo nee, wordt aan action waarde **install** toegekend. Zo ja, wordt aan action waarde **start** toegekend.<br/>   
+When the variable action is not filled in, it is detected whether Nexus Repository OSS is already installed. If not, the action value is set to **install**. If yes, the action value is set to **start**.<br/>   
 
 
-Voorbeeld:
+Example:
 ```
 ---
 - hosts: lab_server
@@ -80,56 +80,56 @@ Voorbeeld:
 ## Secret Engines
 
 action: **create_secret_engine**<br/>
-Nader in te vullen.<br/>
+To be filled in.<br/>
 variables:<br/>
-<kbd>vault_address</kbd> : url naar vault adres voor toegang vault, bijvoorbeeld `http://localhost:8081`<br/>
-<kbd>vault_token</kbd> : token voor toegang tot vault.<br/>
-<kbd>vault_name</kbd> : naam secret engine.<br/>
-<kbd>vault_description</kbd> : omschrijving van secret engine.<br/>
-<kbd>vault_type</kbd> : secret engine type, bijvoorbeeld `kv`, `pki`.<br/>
+<kbd>vault_address</kbd> : URL to vault address for vault access, for example, `http://localhost:8081`<br/>
+<kbd>vault_token</kbd> : Token for access to vault.<br/>
+<kbd>vault_name</kbd> : Name of the secret engine.<br/>
+<kbd>vault_description</kbd> : Description of the secret engine.<br/>
+<kbd>vault_type</kbd> : Secret engine type, for example, `kv`, `pki`.<br/>
 
 
 action: **destroy_secret_engine**<br/>
-Nader in te vullen.<br/>
+To be filled in.<br/>
 variables:<br/>
-<kbd>(geen)</kbd> : Geen variabelen benodigd.<br/>
+<kbd>(none)</kbd> : No variables required.<br/>
 
 
 action: **get_secret**<br/>
-Nader in te vullen.<br/>
+To be filled in.<br/>
 variables:<br/>
-<kbd>(geen)</kbd> : Geen variabelen benodigd.<br/>
+<kbd>(none)</kbd> : No variables required.<br/>
 
 
 action: **create_secret**<br/>
-Nader in te vullen.<br/>
+To be filled in.<br/>
 variables:<br/>
-<kbd>(geen)</kbd> : Geen variabelen benodigd.<br/>
+<kbd>(none)</kbd> : No variables required.<br/>
 
 
 action: **destroy_secret**<br/>
-Nader in te vullen.<br/>
+To be filled in.<br/>
 variables:<br/>
-<kbd>(geen)</kbd> : Geen variabelen benodigd.<br/>
+<kbd>(none)</kbd> : No variables required.<br/>
 
 
 action: **import_secrets**<br/>
-Nader in te vullen.<br/>
+To be filled in.<br/>
 variables:<br/>
-<kbd>(geen)</kbd> : Geen variabelen benodigd.<br/>
+<kbd>(none)</kbd> : No variables required.<br/>
 
 
 action: **export_secrets**<br/>
-Exporteer secrets uit Vault naar een bestand.<br/>
+Export secrets from Vault to a file.<br/>
 variables:<br/>
-<kbd>vault_address</kbd> : URL naar Vault, bijvoorbeeld `https://192.168.1.0:8200`.<br/>
-<kbd>vault_token</kbd> : Token voor toegang tot Vault.<br/>
-<kbd>vault_name</kbd> : Naam van de vault (secret_engine) om secrets te exporteren.<br/>
-<kbd>secret_name</kbd> : Secret naam.<br/>
-<kbd>file_name</kbd> : Bestandsnaam voor export secrets.<br/>
+<kbd>vault_address</kbd> : URL to Vault, for example, `https://192.168.1.0:8200`.<br/>
+<kbd>vault_token</kbd> : Token for access to Vault.<br/>
+<kbd>vault_name</kbd> : Name of the vault (secret_engine) to export secrets from.<br/>
+<kbd>secret_name</kbd> : Secret name.<br/>
+<kbd>file_name</kbd> : Filename for export secrets.<br/>
 
 
-Voorbeeld:
+Example:
 ```
 
 # Export Vault secret to json file
@@ -150,30 +150,30 @@ Voorbeeld:
 ***
 
 - **changelog**<br/>
-  Wijzigingen logboek.<br/>
-  Zie [changelog](CHANGELOG.md)<br/>
+  Change log.<br/>
+  See [changelog](CHANGELOG.md)<br/>
 
 
 - **roadmap**<br/>
-  Visie en toekomstige ontwikkelingen.<br/>
-  Zie [roadmap](ROADMAP.md)<br/>
+  Vision and future developments.<br/>
+  See [roadmap](ROADMAP.md)<br/>
 
 
 ***
 
-## Voorbereidingen
-(geen).<br/>
+## Preparations
+(none).<br/>
 
 
-## Afhankelijkheden
-Afhankelijkheden zijn benoemd in het **requirements.yml** bestand. Gebruik `ansible-galaxy install -r requirements.yml --force` voor installatie.<br/>
+## Dependencies
+Dependencies are listed in the **requirements.yml** file. Use `ansible-galaxy install -r requirements.yml --force` for installation.<br/>
 
-Indien deze role in andere playbooks of Ansible projecten wordt gebruikt, dient de URL van deze rol te worden toegevoegd aan het `requirements.yml` bestand. Via bovenstaand command wordt de rol dan in de juiste folderstructuur geplaatst.<br/>
+If this role is used in other playbooks or Ansible projects, the URL of this role must be added to the `requirements.yml` file. Using the above command, the role will be placed in the correct folder structure.<br/>
 <br/>
 
-## Installatie
-Installatie via action 'install'.<br/>
-Voorbeeld voor installatie Hashicorp Vault:
+## Installation
+Installation via action 'install'.<br/>
+Example for installing Hashicorp Vault:
 
 ```
 ---
@@ -188,17 +188,18 @@ Voorbeeld voor installatie Hashicorp Vault:
 ```
 
 
-## Configuratie
-(geen).<br/>
+## Configuration
+(none).<br/>
 
 
-## Overige informatie
-(geen).<br/>
+## Other information
+(none).<br/>
 
 
-## Licentie
+## License
 MIT
 
 
-## Auteur
+## Author
 Marcel Venema
+

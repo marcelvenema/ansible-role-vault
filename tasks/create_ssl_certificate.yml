@@ -7,7 +7,7 @@
 # Register variables
 - name: Register variables...
   ansible.builtin.set_fact:
-    ssl_subject: "/C=NL/ST=Flevoland/L=Lelystad/O=MinDef/OU=HGI/CN={{ ansible_fqdn }}"
+    ssl_subject: "/C=US/ST=State/L=City/O=Organization/OU=Unit/CN={{ ansible_fqdn }}"
     ssl_extensions: "subjectAltName = DNS:{{ ansible_fqdn }},IP:{{ ansible_default_ipv4.address }}"
 
 # Run command

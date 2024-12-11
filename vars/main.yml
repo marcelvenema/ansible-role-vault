@@ -2,215 +2,216 @@
 
 actions:
 
-  # Deployment actions
-  - install:
-      description : "Installatie van laatste versie van Hashicorp Vault. Basis configuratie."
-      icon : "media/icon_vault.png"
-      parameters:
-            - uninstall:
-                description : "Start de-installatie voordat de installatie wordt gestart. true/false. Standaard is 'true'."
-                required : false
-                value: "true"
-            - vault_repository_url:
-                description : "URL met locatie van repository. Kan een url zijn of pad naar lokaal bestand."
-                required : true
-                value: ""
-            - vault_repository_tag:
-                description : "Release of versienummer van het image. Standaard is 'latest'."
-                required : false
-                value: "latest"
-            - vault_repository_checksum:
-                description : "Checksum van het image."
-                required : false
-                value: ""
-            - vault_repository_checksum_algorithm:
-                description : "Algoritme voor checksum."
-                required : false
-                value: ""
-            - vault_container_name:
-                description : "Naam van de container."
-                required : false
-                value: "vault"
-            - vault_container_ports:
-                description : "Poorten van de container."
-                required : false
-                value: "8200:8200"
-            - vault_container_volumes:
-                description : "Volumes van de container."
-                required : false
-                value: ""
-            - vault_data_dir:
-                description : "Folder waarin de data van Vault wordt opgeslagen."
-                required : false
-                value: "/vault/data"
-            - platform:
-                description : "installeer op specifiek platform, bijvoorbeeld podman, kubernetes, linux. Standaard is autodetect."
-                required : false
-                value: "autodetect"
+    # Deployment actions
+    - install:
+            description : "Installation of the latest version of Hashicorp Vault. Basic configuration."
+            icon : "media/icon_vault.png"
+            parameters:
+                        - uninstall:
+                                description : "Start uninstallation before installation begins. true/false. Default is 'true'."
+                                required : false
+                                value: "true"
+                        - vault_repository_url:
+                                description : "URL with the location of the repository. Can be a URL or path to a local file."
+                                required : true
+                                value: ""
+                        - vault_repository_tag:
+                                description : "Release or version number of the image. Default is 'latest'."
+                                required : false
+                                value: "latest"
+                        - vault_repository_checksum:
+                                description : "Checksum of the image."
+                                required : false
+                                value: ""
+                        - vault_repository_checksum_algorithm:
+                                description : "Algorithm for checksum."
+                                required : false
+                                value: ""
+                        - vault_container_name:
+                                description : "Name of the container."
+                                required : false
+                                value: "vault"
+                        - vault_container_ports:
+                                description : "Ports of the container."
+                                required : false
+                                value: "8200:8200"
+                        - vault_container_volumes:
+                                description : "Volumes of the container."
+                                required : false
+                                value: ""
+                        - vault_data_dir:
+                                description : "Folder where Vault data is stored."
+                                required : false
+                                value: "/vault/data"
+                        - platform:
+                                description : "Install on a specific platform, such as podman, kubernetes, linux. Default is autodetect."
+                                required : false
+                                value: "autodetect"
 
-  - uninstall:
-      description : "De-installatie van Hashicorp Vault. Verwijderd de container, bestanden, gebruikers en groepen."
-      icon : "media/icon_vault.png"
+    - uninstall:
+            description : "Uninstallation of Hashicorp Vault. Removes the container, files, users, and groups."
+            icon : "media/icon_vault.png"
 
-  - update:
-      description : "Update van Hashicorp Vault naar laatste versie."
-      icon : "media/icon_vault.png"
+    - update:
+            description : "Update Hashicorp Vault to the latest version."
+            icon : "media/icon_vault.png"
 
-  - configure:
-      description : "Configureer Vault. Maak een token en unseal keys aan. Unseal Vault."
-      icon : "media/icon_vault.png"
+    - configure:
+            description : "Configure Vault. Create a token and unseal keys. Unseal Vault."
+            icon : "media/icon_vault.png"
 
-  # Administration actions
-  - start:
-      description : "Start Vault."
-      icon : "media/icon_vault.png"
+    # Administration actions
+    - start:
+            description : "Start Vault."
+            icon : "media/icon_vault.png"
 
-  - stop:
-      description : "Stop Vault."
-      icon : "media/icon_vault.png"
+    - stop:
+            description : "Stop Vault."
+            icon : "media/icon_vault.png"
 
-  - unseal:
-      description : "Unseal Vault."
-      icon : "media/icon_vault.png"
-      parameters:
-        - vault_address:
-            description : "URL naar Vault, bijvoorbeeld `https://"
-        - vault_unseal_keys:
-            description : "Unseal keys"
+    - unseal:
+            description : "Unseal Vault."
+            icon : "media/icon_vault.png"
+            parameters:
+                - vault_address:
+                        description : "URL to Vault, for example `https://"
+                - vault_unseal_keys:
+                        description : "Unseal keys"
 
-  # Secret engine actions
-  - get_secret_engine:
-      description : "Haal de configuratie van een secret engine op."
-      icon : "media/icon_vault.png"
+    # Secret engine actions
+    - get_secret_engine:
+            description : "Retrieve the configuration of a secret engine."
+            icon : "media/icon_vault.png"
 
-  - create_secret_engine:
-      description : "Maak een secret engine"
-      icon : "media/icon_vault.png"
+    - create_secret_engine:
+            description : "Create a secret engine."
+            icon : "media/icon_vault.png"
 
-  - destroy_secret_engine:
-      description : "Verwijder een secret engine."
-      icon : "media/icon_vault.png"
+    - destroy_secret_engine:
+            description : "Remove a secret engine."
+            icon : "media/icon_vault.png"
 
-  # Secret actions
-  - get_secret:
-      description : "Haal een secret op."
-      icon : "media/icon_vault.png"
+    # Secret actions
+    - get_secret:
+            description : "Retrieve a secret."
+            icon : "media/icon_vault.png"
 
-  - create_secret:
-      description : "Maak een secret aan."
-      icon : "media/icon_vault.png"
+    - create_secret:
+            description : "Create a secret."
+            icon : "media/icon_vault.png"
 
-  - destroy_secret:
-      description : "Verwijder een secret."
-      icon : "media/icon_vault.png"
+    - destroy_secret:
+            description : "Remove a secret."
+            icon : "media/icon_vault.png"
 
-  - import_secrets:
-      description : "Importeer een secret in Vault."
-      icon : "media/icon_vault.png"
-      parameters:
-        - vault_address:
-            description : "URL naar Vault, bijvoorbeeld `https://192.168.1.0:8200`."
-            required : true
-            value: ""
-        - vault_token:
-            description : "Token voor toegang tot Vault."
-            required : true
-            value: ""
+    - import_secrets:
+            description : "Import a secret into Vault."
+            icon : "media/icon_vault.png"
+            parameters:
+                - vault_address:
+                        description : "URL to Vault, for example `https://192.168.1.0:8200`."
+                        required : true
+                        value: ""
+                - vault_token:
+                        description : "Token for access to Vault."
+                        required : true
+                        value: ""
 
-  - export_secrets:
-      description : "Exporteer een secret uit Vault."
-      icon : "media/icon_vault.png"
-      parameters:
-        - vault_address:
-            description : "URL naar Vault, bijvoorbeeld `https://192.168.1.0:8200`."
-            required : true
-            value: ""
-        - vault_token:
-            description : "Token voor toegang tot Vault."
-            required : true
-            value: ""
+    - export_secrets:
+            description : "Export a secret from Vault."
+            icon : "media/icon_vault.png"
+            parameters:
+                - vault_address:
+                        description : "URL to Vault, for example `https://192.168.1.0:8200`."
+                        required : true
+                        value: ""
+                - vault_token:
+                        description : "Token for access to Vault."
+                        required : true
+                        value: ""
 
 
-  # Policy actions
-  - get_policy:
-      description : "Haal de configuratie van een policy op."
-      icon : "media/icon_vault.png"
+    # Policy actions
+    - get_policy:
+            description : "Retrieve the configuration of a policy."
+            icon : "media/icon_vault.png"
 
-  - create_policy:
-      description : "Maak een policy aan."
-      icon : "media/icon_vault.png"
+    - create_policy:
+            description : "Create a policy."
+            icon : "media/icon_vault.png"
 
-  - destroy_policy:
-      description : "Verwijder een policy."
-      icon : "media/icon_vault.png"
+    - destroy_policy:
+            description : "Remove a policy."
+            icon : "media/icon_vault.png"
 
-  # AppRole actions
-  - get_approle:
-      description : "Haal de configuratie van een approle op."
-      icon : "media/icon_vault.png"
+    # AppRole actions
+    - get_approle:
+            description : "Retrieve the configuration of an approle."
+            icon : "media/icon_vault.png"
 
-  - create_approle:
-      description : "Maak een approle aan."
-      icon : "media/icon_vault.png"
+    - create_approle:
+            description : "Create an approle."
+            icon : "media/icon_vault.png"
 
-  - destroy_approle:
-      description : "Verwijder een approle."
-      icon : "media/icon_vault.png"
+    - destroy_approle:
+            description : "Remove an approle."
+            icon : "media/icon_vault.png"
 
 vault:
-  id: ""
-  vault_name: "vault"
+    id: ""
+    vault_name: "vault"
 
 
 install_properties:
-  - vault_repository_url
-  - vault_repository_url_description : "URL met locatie van repository. Kan een url zijn of pad naar lokaal bestand."
-  - vault_repository_url_required : true
-  - vault_repository_tag
-  - vault_repository_tag_description : "Release of versienummer van het image. Standaard is 'latest'."
-  - data_dir
-  - data_dir_description : "Folder waarin de data van Vault wordt opgeslagen."
-  - platform
-  - platform_description : "installeer op specifiek platform, bijvoorbeeld podman, kubernetes, linux. Standaard is autodetect."
-  - uninstall
-  - uninstall_description : "Start de-installatie voordat de installatie wordt gestart. true/false. Standaard is 'true'."
+    - vault_repository_url
+    - vault_repository_url_description : "URL with the location of the repository. Can be a URL or path to a local file."
+    - vault_repository_url_required : true
+    - vault_repository_tag
+    - vault_repository_tag_description : "Release or version number of the image. Default is 'latest'."
+    - data_dir
+    - data_dir_description : "Folder where Vault data is stored."
+    - platform
+    - platform_description : "Install on a specific platform, such as podman, kubernetes, linux. Default is autodetect."
+    - uninstall
+    - uninstall_description : "Start uninstallation before installation begins. true/false. Default is 'true'."
 
 update_properties:
-  - vault_repository_url
-  - vault_repository_url_description : "URL met locatie van container repository. Kan een url zijn of pad naar lokaal bestand."
-  - vault_repository_url_required : true
-  - vault_repository_tag
-  - vault_repository_tag_description : "Release of versienummer van het image. Standaard is 'latest'."
-  - platform
-  - platform_description : "Update op specifiek platform, bijvoorbeeld podman, kubernetes, linux. Standaard is autodetect."
+    - vault_repository_url
+    - vault_repository_url_description : "URL with the location of the container repository. Can be a URL or path to a local file."
+    - vault_repository_url_required : true
+    - vault_repository_tag
+    - vault_repository_tag_description : "Release or version number of the image. Default is 'latest'."
+    - platform
+    - platform_description : "Update on a specific platform, such as podman, kubernetes, linux. Default is autodetect."
 
 unseal_properties:
-  - vault_address
-  - vault_address_description : "URL naar Vault, bijvoorbeeld `https://192.168.1.0:8200`."
-  - vault_address_required : true
-  - vault_unseal_keys
-  - vault_unseal_keys_description : "Unseal keys van Vault. Dit zijn de keys die zijn gegenereerd tijdens de installatie."
-  - vault_unseal_keys_required : true
+    - vault_address
+    - vault_address_description : "URL to Vault, for example `https://192.168.1.0:8200`."
+    - vault_address_required : true
+    - vault_unseal_keys
+    - vault_unseal_keys_description : "Unseal keys of Vault. These are the keys generated during installation."
+    - vault_unseal_keys_required : true
 
 
 export_secrets_properties:
-  - vault_address
-  - vault_address_description : "URL naar Vault, bijvoorbeeld `https://192.168.1.0:8200`"
-  - vault_address_required : true
-  - vault_token
-  - vault_token_description : "Token voor toegang tot Vault."
-  - vault_token_required : true
-  - vault_name
-  - vault_name_description : "Naam van de vault (secret_engine) om secrets te exporteren."
-  - vault_name_required : true
-  - secret_name
-  - secret_name_description : "Secret naam"
-  - secret_name_required : true
-  - file_name
-  - file_name_description : "Bestandsnaam voor export secrets."
-  - file_name_required : true
+    - vault_address
+    - vault_address_description : "URL to Vault, for example `https://192.168.1.0:8200`"
+    - vault_address_required : true
+    - vault_token
+    - vault_token_description : "Token for access to Vault."
+    - vault_token_required : true
+    - vault_name
+    - vault_name_description : "Name of the vault (secret_engine) to export secrets."
+    - vault_name_required : true
+    - secret_name
+    - secret_name_description : "Secret name"
+    - secret_name_required : true
+    - file_name
+    - file_name_description : "Filename for export secrets."
+    - file_name_required : true
 
 
 rolevars:
-  - vault_address
-  - vault_token
+    - vault_address
+    - vault_token
+

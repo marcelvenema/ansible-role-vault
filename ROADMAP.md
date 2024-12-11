@@ -1,11 +1,11 @@
-# Visie en Roadmap
+# Vision and Roadmap
 
-## Visie
+## Vision
 
 <img src="media/icon_vault.png" align="left" height="128" width="128" />
-De ansible role vault bevat alle diensten voor de installatie, configuratie en het beheer van HashiCorp Vault.<br/>
+The Ansible role vault contains all services for the installation, configuration, and management of HashiCorp Vault.<br/>
 <br/>
-Naast installatie en configuratie zijn ook diensten beschikbaar voor het opslaan en ophalen van secrets.<br/>
+In addition to installation and configuration, services are also available for storing and retrieving secrets.<br/>
 <br/>
 <br/>
 <br/>
@@ -18,7 +18,8 @@ Naast installatie en configuratie zijn ook diensten beschikbaar voor het opslaan
 
 
 
-**Export en Import van secrets**
-De dienst export_secrets vanaf een secret engine naar een json bestand en import_secrets voor vice-versa, dient meer robuust gemaakt te worden zodat deze productiegereed is.<br/>
-**PKI certificaten**
-In de Vault kunnen PKI certificaten worden opgeslagen en uitgegeven.
+**Export and Import of secrets**
+The export_secrets service from a secret engine to a JSON file and import_secrets for vice-versa needs to be made more robust so that it is production-ready.<br/>
+**PKI certificates**
+PKI certificates can be stored and issued in the Vault.
+
