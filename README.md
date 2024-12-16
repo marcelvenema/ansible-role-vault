@@ -1,4 +1,4 @@
-# Hashicorp Vault
+# role: Hashicorp Vault
 
 <table border="0">
   <tr>
@@ -13,7 +13,9 @@
   </tr>
 </table>
 
-# Services:
+[Design Ansible role Vault](docs/DESIGN.md)<br/>
+
+# Actions:
 
 action: **install**<br/>
 Installation of the latest version of Hashicorp Vault. Basic configuration.<br/>
@@ -61,7 +63,7 @@ variables:<br/>
 <kbd>vault_unseal_keys</kbd> : Unseal keys of Vault. These are the keys generated during installation.<br/>
 
 
-When the variable action is not filled in, it is detected whether Nexus Repository OSS is already installed. If not, the action value is set to **install**. If yes, the action value is set to **start**.<br/>   
+When the variable action is not filled in, it is detected whether Nexus Repository OSS is already installed. If not, the action value is set to **install**. If yes, the action value is set to **start**.<br/>
 
 
 Example:
@@ -202,4 +204,3 @@ MIT
 
 ## Author
 Marcel Venema
-
