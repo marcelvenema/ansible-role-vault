@@ -81,6 +81,9 @@ Create a secret in Vault.<br>
 variables:<br>
 <kbd>vault_address</kbd> : URL to the Vault address, e.g., `http://localhost:8200`.<br>
 <kbd>vault_token</kbd> : Token for Vault access.<br>
+<kbd>secret_engine_name</kbd> : name of secret engine.<br>
+<kbd>secret_value</kbd> : Path where the secret will be stored.<br> 
+<kbd>secret_keyvalue</kbd> : Data of the secret in key-value pairs.<br>
 
 ```
 - name: Create secret in Vault
@@ -90,28 +93,94 @@ variables:<br>
          vars:
              action: create_secret
              vault_address: http://localhost:8200
-             vault_token: s.1234567890abcdef
-
+             vault_token: <token>
+             secret_engine_name: nexus-repository
+             secret_value: server-nexus
+             secret_keyvalue: "{ "username":"administrator", "password":"password123"}
 ```
 
 action: **destroy_secret**<br>
-Delete a secret from Vault.<br>
+Delete a secret from Vault. `ROADMAP`<br>
 variables:<br>
 <kbd>vault_address</kbd> : URL to the Vault address, e.g., `http://localhost:8200`.<br>
 <kbd>vault_token</kbd> : Token for Vault access.<br>
-<kbd>secret_path</kbd> : Path where the secret is stored.<br>
+<kbd>secret_engine_name</kbd> : Path where the secret is stored.<br>
 
 ```
-- name: Delete secret from Vault
+- name: Destroy secret from Vault
     hosts: vault-server
     roles:
      - role: vault
          vars:
-             action: delete_secret
+             action: destroy_secret
              vault_address: http://localhost:8200
-             vault_token: s.1234567890abcdef
-             secret_path: secret/myapp
+             vault_token: <token>
+             secret_engine_name: nexus-repository
+             secret_value: server-nexus
 ```
+
+
+action: **get_secret**<br>
+Get a secret from Vault.<br>
+variables:<br>
+<kbd>vault_address</kbd> : URL to the Vault address, e.g., `http://localhost:8200`.<br>
+<kbd>vault_token</kbd> : Token for Vault access.<br>
+<kbd>secret_engine_name</kbd> : Path where the secret is stored.<br>
+
+```
+
+```
+
+
+action: **import_secret**<br>
+Import secret from Vault.<br>
+variables:<br>
+<kbd>vault_address</kbd> : URL to the Vault address, e.g., `http://localhost:8200`.<br>
+<kbd>vault_token</kbd> : Token for Vault access.<br>
+<kbd>secret_engine_name</kbd> : Path where the secret is stored.<br>
+
+```
+
+```
+
+
+action: **export_secret**<br>
+Import secret from Vault.<br>
+variables:<br>
+<kbd>vault_address</kbd> : URL to the Vault address, e.g., `http://localhost:8200`.<br>
+<kbd>vault_token</kbd> : Token for Vault access.<br>
+<kbd>secret_engine_name</kbd> : Path where the secret is stored.<br>
+
+```
+
+```
+
+
+## Secret Engines
+
+action: **create_secret_engine**<br>
+Create secret engine in Vault.<br>
+variables:<br>
+<kbd>vault_address</kbd> : URL to the Vault address, e.g., `http://localhost:8200`.<br>
+<kbd>vault_token</kbd> : Token for Vault access.<br>
+<kbd>secret_engine_name</kbd> : Path where the secret is stored.<br>
+
+```
+
+```
+
+
+action: **destroy_secret_engine**<br>
+Destroy secret engine in Vault.<br>
+variables:<br>
+<kbd>vault_address</kbd> : URL to the Vault address, e.g., `http://localhost:8200`.<br>
+<kbd>vault_token</kbd> : Token for Vault access.<br>
+<kbd>secret_engine_name</kbd> : Path where the secret is stored.<br>
+
+```
+
+```
+
 
 ## Policies
 
@@ -131,7 +200,7 @@ variables:<br>
          vars:
              action: create_policy
              vault_address: http://localhost:8200
-             vault_token: s.1234567890abcdef
+             vault_token: <token>
              policy_name: my-policy
              policy_rules: |
                  path "secret/*" {
@@ -139,63 +208,46 @@ variables:<br>
                  }
 ```
 
-action: **delete_policy**<br>
-Delete a policy from Vault.<br>
+action: **destroy_policy**<br>
+Destroy a policy from Vault. `ROADMAP`<br>
 variables:<br>
 <kbd>vault_address</kbd> : URL to the Vault address, e.g., `http://localhost:8200`.<br>
 <kbd>vault_token</kbd> : Token for Vault access.<br>
 <kbd>policy_name</kbd> : Name of the policy.<br>
 
 ```
-- name: Delete policy from Vault
+- name: Destroy policy from Vault
     hosts: vault-server
     roles:
      - role: vault
          vars:
              action: delete_policy
              vault_address: http://localhost:8200
-             vault_token: s.1234567890abcdef
+             vault_token: <token>
              policy_name: my-policy
 ```
 
-## Audit
+## AppRoles
 
-action: **enable_audit**<br>
-Enable audit logging in Vault.<br>
+action: **create_approle**<br>
+Create AppRole in Vault.<br>
 variables:<br>
 <kbd>vault_address</kbd> : URL to the Vault address, e.g., `http://localhost:8200`.<br>
 <kbd>vault_token</kbd> : Token for Vault access.<br>
-<kbd>audit_path</kbd> : Path where the audit logs will be stored.<br>
 
 ```
-- name: Enable audit logging in Vault
-    hosts: vault-server
-    roles:
-     - role: vault
-         vars:
-             action: enable_audit
-             vault_address: http://localhost:8200
-             vault_token: s.1234567890abcdef
-             audit_path: file
+
 ```
 
-action: **disable_audit**<br>
-Disable audit logging in Vault.<br>
+
+action: **destroy_approle**<br>
+Destroy AppRole in Vault.<br>
 variables:<br>
 <kbd>vault_address</kbd> : URL to the Vault address, e.g., `http://localhost:8200`.<br>
 <kbd>vault_token</kbd> : Token for Vault access.<br>
-<kbd>audit_path</kbd> : Path where the audit logs are stored.<br>
 
 ```
-- name: Disable audit logging in Vault
-    hosts: vault-server
-    roles:
-     - role: vault
-         vars:
-             action: disable_audit
-             vault_address: http://localhost:8200
-             vault_token: s.1234567890abcdef
-             audit_path: file
+
 ```
 
 ## Administration
@@ -232,8 +284,12 @@ action: **unseal**<br>
 Unseal Vault to make it ready for use.<br>
 variables:<br>
 <kbd>vault_address</kbd> : URL to Vault, for example, `https://192.168.1.0:8200`.<br>
+<kbd>vault_token</kbd> : Token for Vault access.<br>
 <kbd>vault_unseal_keys</kbd> : Unseal keys of Vault. These are the keys generated during installation.<br>
 
+```
+
+```
 
 
 ***
@@ -282,22 +338,6 @@ Example for installing Vault:
 
 # Create list of all variables used in /vars/main.yml
 
-| Variable                             | Description                                                                 |
-|--------------------------------------|-----------------------------------------------------------------------------|
-| vault_version                        | Version of Vault to install.                                                |
-| vault_binary_url                     | URL to download the Vault binary.                                           |
-| vault_checksum                       | Checksum of the Vault binary.                                               |
-| vault_checksum_algorithm             | Algorithm for the checksum, e.g., sha256.                                   |
-| platform                             | Install on a specific platform, e.g., podman, kubernetes, host.             |
-| uninstall                            | When true, uninstall is started before installation.                        |
-| vault_address                        | URL to the Vault address for Vault access.                                  |
-| vault_token                          | Token for Vault access.                                                     |
-| secret_path                          | Path where the secret will be stored.                                       |
-| secret_data                          | Data of the secret in key-value pairs.                                      |
-| policy_name                          | Name of the policy.                                                         |
-| policy_rules                         | Rules of the policy.                                                        |
-| audit_path                           | Path where the audit logs will be stored.                                   |
-|--------------------------------------|-----------------------------------------------------------------------------|
 
 ## License
 MIT
