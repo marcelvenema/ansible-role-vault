@@ -16,17 +16,6 @@
     cmd: "openssl req -new -newkey rsa:2048 -sha256 -days 3650 -nodes -x509 -extensions v3_ca -keyout {{ destination_folder }}/private.key -out {{ destination_folder }}/public.crt -subj '{{ ssl_subject }}' -addext '{{ ssl_extensions }}'"
   register: action_result
 
-  # Change ownership of files
-- name: Change ownership of SSL certificate files...
-  ansible.builtin.file:
-    path: "{{ destination_folder }}/{{ item }}"
-    owner: "{{ user }}"
-    mode: "0744"
-  loop:
-    - private.key
-    - public.crt
-  when: action_result.rc == 0
-
 #########################################################
 ## Post-actions                                        ##
 #########################################################

@@ -15,13 +15,12 @@ vault_container_name: "vault"
 # vault_container_ports is a list of ports used in the container. example: ["8200:8200"] or ["8200:8200", "8201:8201"].
 vault_container_ports: ["8200:8200"]
 # vault_container_volumes is a list of volumes used in the container. example: ["vault/config:/vault/config:Z"] or ["vault/config:/vault/config:Z", "vault/file:/vault/file:Z"].
-vault_container_volumes: ["vault/config:/vault/config:Z", "vault/file:/vault/file:Z", "vault/logs:/vault/logs:Z", "vault/certs:/vault/certs:Z"]
+vault_container_volumes: ["vault/logs:/vault/logs:Z", "vault/file:/vault/file:Z", "vault/config:/vault/config:Z"]
 # vault_container_env is a list of environment variables used in the container.
 vault_container_env:
-  SKIP_CHOWN: true
   SKIP_SETCAP: true
 # vault_container_user is the user used in the container. example: "1000".
-vault_container_user: "vault"
+#vault_container_user: "podman"
 
 # Variables for Hashicorp Vault configuration
 

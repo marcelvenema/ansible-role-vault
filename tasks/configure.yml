@@ -31,46 +31,68 @@
     vault_init_status: "{{ vault_init_status.content }}"
 
 #########################################################
-## Configuration                                       ##
+## Initialization                                      ##
 #########################################################
 
 # Initialize Vault 
 - name: Initialize Vault server...
-  ansible.builtin.uri:
-    url: "{{ vault_address }}/v1/sys/init"
-    validate_certs: false
-    method: POST
-    body_format: json
-    body:
-      secret_shares: 5
-      secret_threshold: 2
-  register: vault_init_results 
   when: vault_init_status.initialized == false
-  
-# Save Vault root token and unseal keys
-- name: Save Vault root token and unseal keys...
-  ansible.builtin.set_fact:
-    vault_token: "{{ vault_init_results.json.root_token }}"
-    vault_unseal_keys: "{{ vault_init_results.json.keys_base64 }}"
-  when: vault_init_status.initialized == false
+  block:
+    
+    # Initialize Vault, create unseal keys and root token
+    - name: Initialize Vault server...
+      ansible.builtin.uri:
+        url: "{{ vault_address }}/v1/sys/init"
+        validate_certs: false
+        method: POST
+        body_format: json
+        body:
+          secret_shares: 5
+          secret_threshold: 2
+      register: vault_init_results 
 
-# Save Vault root token to file
-- name: Save Vault root token to file...
-  ansible.builtin.copy:
-    content: "{{ vault_token }}"
-    dest: "{{ podman_data_folder }}/vault/config/vault_token"
-    owner: "{{ vault_container_user }}"
-    mode: 0600
-  when: vault_init_status.initialized == false
+    # Save Vault root token and unseal keys
+    - name: Save Vault root token and unseal keys...
+      ansible.builtin.set_fact:
+        vault_token: "{{ vault_init_results.json.root_token }}"
+        vault_unseal_keys: "{{ vault_init_results.json.keys_base64 }}"
 
-# Save Vault unseal keys to file
-- name: Save Vault unseal keys to file...
-  ansible.builtin.copy:
-    content: "{{ vault_unseal_keys }}"
-    dest: "{{ podman_data_folder }}/vault/config/vault_unseal_keys"
-    owner: "{{ vault_container_user }}"
-    mode: 0600
-  when: vault_init_status.initialized == false
+    # Create temp folder for root token and unseal keys
+    - name: Create temporary folder...
+      ansible.builtin.file:
+        path: "/tmp/vault"
+        state: directory
+
+    # Save Vault root token to file
+    - name: Save Vault root token to file...
+      ansible.builtin.copy:
+        content: "{{ vault_token }}"
+        dest: "/tmp/vault/vault_token"
+
+    # Save Vault unseal keys to file
+    - name: Save Vault unseal keys to file...
+      ansible.builtin.copy:
+        content: "{{ vault_unseal_keys }}"
+        dest: "/tmp/vault/vault_unseal_keys"
+
+    # Copy root token and unseal keys to podman volume
+    - name: Copy root token and unseal keys to podman volume...
+      ansible.builtin.include_role:
+        name: podman
+      vars: 
+        action: "copy_to_volume"
+        volume_source_folder: "/tmp/vault"
+        volume_destination_folder: "/vault/config"
+
+    # Delete temp folder
+    - name: Delete temporary folder...
+      ansible.builtin.file:
+        path: "/tmp/vault"
+        state: absent
+
+#########################################################
+## Configuration                                       ##
+#########################################################
 
 #########################################################
 ## Unseal                                              ##

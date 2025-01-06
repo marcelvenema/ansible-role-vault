@@ -54,26 +54,9 @@
         that: '"podman" in ansible_facts.packages'
         fail_msg: "Podman is not installed. Please install Podman first. Cannot continue..."
 
-    # Create vault user
-    - name: Create user ({{ vault_container_user }})...
-      ansible.builtin.user:
-        name: "{{ vault_container_user }}"
-        comment: "Hashicorp Vault user"
-        shell: /bin/bash
-        createhome: yes
-        system: yes
-        state: present
-
-    # Get uid of user podman
-    - name: "Get uid of user ({{ vault_container_user }})..."
-      ansible.builtin.user:
-        name: "{{ vault_container_user }}"
-      register: vault_container_user_details
-
-    # Set uid of user podman
-    - name: "Register uid of user ({{ vault_container_user }})..."
-      ansible.builtin.set_fact:
-        vault_coontainer_user_uid: "{{ vault_container_user_details.uid }}"
+    #####################################################
+    ## Volume configuration                            ##
+    #####################################################
 
     # Create volumes
     - name: Create configuration folders...
@@ -81,26 +64,93 @@
         name: podman
       vars:
         action: create_volumes
-        volume_owner: "{{ vault_container_user }}"
         container_volumes: "{{ vault_container_volumes }}"
+        volume_mode: "0777"
 
+    #####################################################
+    ## Vault SSL certificate                           ##
+    #####################################################
+        
+    # Create temp folder for SSL certificate
+    - name: Create temporary folder...
+      ansible.builtin.file:
+        path: "/tmp/vault/certs"
+        state: directory
+  
     # Create SSL certificate
     - name: Create SSL certificate for Hashicorp Vault...
       ansible.builtin.include_tasks:
         file: create_ssl_certificate.yml
       vars:
-        destination_folder: "{{ podman_data_folder }}/vault/certs" 
-        user: "{{ vault_container_user}}"
+        destination_folder: "/tmp/vault/certs" 
+ 
+    # Copy SSL certificate to container
+    - name: Copy SSL certificate to container volume...
+      ansible.builtin.include_role:
+        name: podman
+      vars:
+        action: copy_to_volume
+        volume_source_folder: "/tmp/vault/certs/"
+        volume_destination_folder: "/vault/config"
+        volume_mode: "0777"
+
+    # Delete temp folder
+    - name: Delete temporary folder...
+      ansible.builtin.file:
+        path: "/tmp/vault/certs"
+        state: absent
+
+    #####################################################
+    ## Vault configuration                             ##
+    #####################################################    
+    
+    # Create temp folder for configuration file
+    - name: Create temporary folder...
+      ansible.builtin.file:
+        path: "/tmp/vault"
+        state: directory
 
     # Create configuration file
     - name: Create Hashicorp Vault configuration file...
       ansible.builtin.template:
         src: ./templates/vault.podman_config.hcl.j2
-        dest: "{{ podman_data_folder }}/vault/config/vault.hcl"
-        owner: "{{ vault_container_user }}"
+        dest: "/tmp/vault/vault.hcl"
+
+    # Copy configuration file to container
+    - name: Copy configuration file to container...
+      ansible.builtin.include_role:
+        name: podman
+      vars:
+        action: copy_to_volume
+        volume_source_folder: "/tmp/vault/"
+        volume_destination_folder: "/vault/config"
+        volume_mode: "0777"
+
+    # Delete temp folder
+    - name: Delete temporary folder...
+      ansible.builtin.file:
+        path: "/tmp/vault"
+        state: absent
+
+    #####################################################
+    ## Firewall configuration                          ##
+    #####################################################
+
+    # Open firewall ports
+    - name: Open firewall ports...
+      become: true
+      ansible.builtin.firewalld:
+        port: "{{ vault_container_ports[0].split(':')[0] }}/tcp"
+        permanent: true
+        state: enabled
+        immediate: true
+
+    #####################################################
+    ## Import container                                ##
+    #####################################################
 
     # Import container
-    - name: "Install {{ nexus_container_name }} container on podman"
+    - name: "Install {{ vault_container_name }} container on podman"
       ansible.builtin.include_role:
         name: podman
       vars:
@@ -113,9 +163,7 @@
         container_ports: "{{ vault_container_ports }}"
         container_volumes: "{{ vault_container_volumes }}"
         container_command: "vault server -config=/vault/config/vault.hcl"
-        container_user: "{{ vault_container_user_uid }}"
         container_security_opt: ["label=disable"]
-        container_privileged: true
         container_cap_add: IPC_LOCK
         container_env: "{{ vault_container_env | default({}) }}"
 
