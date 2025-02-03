@@ -1,28 +1,33 @@
 ---
 
 # Variables for container configuration
-
-# vault_repository_url can be a URL to a docker image or a tar file. example: "https://docker.io/sonatype/nexus3" or "/tmp/nexus3.67.1.tar", "https://192.168.1.1/repo/nexus.tar".
+# <container_name>_repository_url can be a URL to a docker image or a tar file. example: "https://docker.io/sonatype/nexus3" or "/tmp/nexus3.67.1.tar", "https://192.168.1.1/repo/nexus.tar".
 vault_repository_url: "docker.io/hashicorp/vault"
-# vault_repository_tag can be a tag of the image or a version of the tar file. example: "3.67.1" or "latest" Default is "latest".
+# <container_name>_repository_tag can be a tag of the image or a version of the tar file. example: "3.67.1" or "latest" Default is "latest".
 # vault_repository_tag: "latest"
-# vault_repository_checksum can be a checksum of the container file. example: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" or "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".
+# <container_name>_repository_checksum can be a checksum of the container file. example: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" or "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".
 # vault_repository_checksum: ""
-# vault_repository_checksum_algorithm can be a checksum algorithm of the container file. example: "sha256", sha512", "md5".
+# <container_name>_repository_checksum_algorithm can be a checksum algorithm of the container file. example: "sha256", sha512", "md5".
 # vault_repository_checksum_algorithm: "sha256"
-# vault_container_name is the name of the container used in podman or docker. example: "vault".
+# <container_name>_container_name is the name of the container used in podman or docker. example: "vault".
 vault_container_name: "vault"
-# vault_container_ports is a list of ports used in the container. example: ["8200:8200"] or ["8200:8200", "8201:8201"].
+# <container_name>_container_ports is a list of ports used in the container. example: ["8200:8200"] or ["8200:8200", "8201:8201"].
 vault_container_ports: ["8200:8200"]
-# vault_container_volumes is a list of volumes used in the container. example: ["vault/config:/vault/config:Z"] or ["vault/config:/vault/config:Z", "vault/file:/vault/file:Z"].
+# <container_name>_container_volumes is a list of volumes used in the container. example: ["vault/config:/vault/config:Z"] or ["vault/config:/vault/config:Z", "vault/file:/vault/file:Z"].
 vault_container_volumes: ["vault/logs:/vault/logs:Z", "vault/file:/vault/file:Z", "vault/config:/vault/config:Z"]
-# vault_container_env is a list of environment variables used in the container.
+# <container_name>_container_env is a list of environment variables used in the container.
 vault_container_env:
   SKIP_SETCAP: true
-# vault_container_user is the user used in the container. example: "1000".
+# <container_name>_container_user is the user used in the container. example: "1000".
 #vault_container_user: "podman"
 
-# Variables for Hashicorp Vault configuration
+# Variables for configuring Vault to store secrets and configuration data
+# <container_name>_vault_name is the name of the vault used for storing secrets and configuration data. example: "nexus-repository".
+vault_secret_engine_name: "hashicorp-vault"
+# <container_name>_vault_description is the description of the vault used for storing secrets and configuration data. example: "Secrets for Sonatype Nexus Repository.".
+vault_secret_engine_description: "Secrets for Hashicorp Vault."
+# <container_name>_vault_id is the unique id of the vault used for storing secrets and configuration data. default is {{ansible_fqdn }}.
+# vault_vault_id: ""
 
 # vault_validate_certs configures if the certificate of the server should be validated. example: true or false. 
 vault_validate_certs: false
@@ -30,4 +35,3 @@ vault_validate_certs: false
 # variables SSL certificate
 # vault_ssl_certificate is the path to the SSL certificate file. example: "/etc/ssl/certs/vault.crt".
 # vault_ssl_certificate: ""
-
