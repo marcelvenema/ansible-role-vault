@@ -13,47 +13,19 @@
   loop_control:
     loop_var: varitem
   loop:
-    - repository_url
+    - vault_repository_url
 
 #########################################################
-## Pre-update platform check                           ##
+## Pre-installation platform check                     ##
 #########################################################
 
-# Gather installed packages
-- name: Gather installed packages
-  ansible.builtin.package_facts:
-    manager: auto
-
-# Override platform check if platform variable is defined.
-- name: Override platform check if platform variable is defined.
-  ansible.builtin.set_fact:
-    platform_check: false
-  when: platform is defined
-
-# Set platform if podman is detected
-- name: Set platform if podman is detected
-  ansible.builtin.set_fact:
-    platform: "podman"
-  when:
-    - platform_check is not defined
-    - '"podman" in ansible_facts.packages'
-
-# Set platform if kubernetes is detected
-- name: Set platform if kubernetes is detected
-  ansible.builtin.set_fact:
-    platform: "kubernetes"
-  when:
-    - platform_check is not defined
-    - '"kubernetes" in ansible_facts.packages'
-
-# Set platform to host if no podman or no kubernetes is detected
-- name: Set platform to host if no Podman or Kubernetes is detected
-  ansible.builtin.set_fact:
-    platform: "host"
-  when:
-    - platform_check is not defined
-    - '"podman" not in ansible_facts.packages'
-    - '"kubernetes" not in ansible_facts.packages'
+# Determine platform
+- name: Determine platform for installation...
+  ansible.builtin.include_role:
+    name: server-config
+  vars:
+    action: "platform_check"
+  register: platform
 
 #########################################################
 ## Update via podman                                   ##
@@ -62,71 +34,15 @@
 - name: Update Vault on podman
   when: platform == "podman"
   block:
- 
-    ##################################
-    # Import container image         # 
-    ##################################
 
-    # If tag is not defined, set value to latest
-    - name: Validate repository_tag, set default
-      ansible.builtin.set_fact:
-        repository_tag: "latest"
-      when: vault_repository_tag is not defined or vault_repository_tag == "" or vault_repository_tag == none
-
-    # Pull image from repository to local image repository. If failed, lookup local image file.
-    - name: "Pull Vault container image from repository {{ vault_repository_url}}:{{ vault_repository_tag }}"
-      containers.podman.podman_image:
-        name: "{{ repository_url }}"
-        tag: "{{ repository_tag }}"
-      register: pull_result
-      ignore_errors: true
-
-   # repository_url is a local container file, check if file exists on ansible host
-    - name: Check if repository_url is a local container file
-      ansible.builtin.stat:
-        path: "{{ repository_url }}"
-      register: repository_url_result
-      delegate_to: localhost
-      when: pull_result is failed
-
-    # Fail if image file not found
-    - name: Fail if Vault container image file not found
-      ansible.builtin.fail:
-        msg: "Repository URL {{ repository_url }} not found. Container image file location not found. Cannot continue..."
-      when: 
-        - pull_result is failed
-        - repository_url_result.stat.exists == false
-
-    # Copy image file to destination
-    - name: Copy Vault container image file to destination
-      ansible.builtin.copy:
-        src: "{{ repository_url }}"
-        dest: "/tmp/vault.tar"
-      when: pull_result is failed
-
-    # Load image from file if pull failed
-    - name: Import Vault container image to podman
-      ansible.builtin.command: podman load -i /tmp/vault.tar
-      register: import_result
-      when: pull_result is failed
-
-    # Get image info from podman
-    - name: Gather info on Vault container image
-      containers.podman.podman_image_info:
-        name: vault
-      register: image_info_result
-
-    # Get Id from image info
-    - name: Get Id from image info
-      ansible.builtin.set_fact:
-        image_id: "{{ image_info_result.images[0].Id[:12] }}"
-
-    # Cleanup image file
-    - name: Cleanup container image file
-      ansible.builtin.file:
-        path: /tmp/vault.tar
-        state: absent
-      when: pull_result is failed
+    # Update podman container
+    - name: Update Podman container...
+      ansible.builtin.include_role:
+        name: podman
+      vars:
+        action: "update_container"
+        container_name: "{{vault_container_name}}"
+        container_repository_url: "{{ vault_repository_url }}"
 
 #########################################################
 ## Post-actions                                        ##
@@ -135,10 +51,14 @@
 # Unset variables
 - name: Unset variables...
   ansible.builtin.set_fact:
-    repository_url: null
-    repository_tag: null
-    pull_result: null
-    repository_url_result: null
-    import_result: null
-    image_info_result: null
-    image_id: null
+    vault_repository_url: null
+    vault_repository_tag: null
+    vault_repository_checksum: null
+    vault_repository_checksum_algorithm: null
+    vault_container_name: null
+    vault_container_ports: null
+    vault_container_volumes: null
+    vault_container_env: null
+    vault_container_user: null
+    vault_container_user_details: null
+    vault_container_user_uid: null
