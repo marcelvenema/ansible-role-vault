@@ -158,7 +158,7 @@
 ## Configure Vault                                     ##
 #########################################################
 # Set Vault secrets
-- name: Set Vault secrets
+- name: Configure Vault secrets
   ansible.builtin.include_tasks: configure_vault.yml
 
 #########################################################

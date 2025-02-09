@@ -139,7 +139,7 @@
     # Open firewall ports
     - name: Open firewall ports...
       become: true
-      ansible.builtin.firewalld:
+      ansible.posix.firewalld:
         port: "{{ vault_container_ports[0].split(':')[0] }}/tcp"
         permanent: true
         state: enabled

@@ -43,38 +43,41 @@
   ansible.builtin.include_tasks: unseal.yml
   when: action == "unseal"
 
-  # secret_engine
+# -------------------------------------------------------
+# secret_engine
 - name: Start get_secret_engine task...
-  ansible.builtin.include_tasks: secret_engine.yml
+  ansible.builtin.include_tasks: secret_engine/secret_engine.yml
   when: action == "get_secret_engine"
 
 - name: Start create_secret_engine action...
-  ansible.builtin.include_tasks: secret_engine.yml
+  ansible.builtin.include_tasks: secret_engine/secret_engine.yml
   when: action == "create_secret_engine"
 
 - name: Start destroy_secret_engine action...
-  ansible.builtin.include_tasks: secret_engine.yml
+  ansible.builtin.include_tasks: secret_engine/secret_engine.yml
   when: action == "destroy_secret_engine"
 
-  # secrets
+
+# -------------------------------------------------------
+# secrets
 - name: Start get_secret action...
-  ansible.builtin.include_tasks: secrets.yml
+  ansible.builtin.include_tasks: secrets/secrets.yml
   when: action == "get_secret"
 
 - name: Start create_secret action...
-  ansible.builtin.include_tasks: secrets.yml
+  ansible.builtin.include_tasks: secrets/create_secret.yml
   when: action == "create_secret"
 
 - name: Start destroy_secret action...
-  ansible.builtin.include_tasks: secrets.yml
+  ansible.builtin.include_tasks: secrets/secrets.yml
   when: action == "destroy_secret"
 
 - name: Start import_secrets action...
-  ansible.builtin.include_tasks: secrets.yml
+  ansible.builtin.include_tasks: secrets/secrets.yml
   when: action == "import_secrets"
 
 - name: Start export_secrets action...
-  ansible.builtin.include_tasks: secrets.yml
+  ansible.builtin.include_tasks: secrets/secrets.yml
   when: action == "export_secrets"
 
   # policies

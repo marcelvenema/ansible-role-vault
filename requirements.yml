@@ -1,2 +1,3 @@
-
-# no requirements or dependencies.
+---
+collections:
+  - name: ansible.posix

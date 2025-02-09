@@ -5,7 +5,7 @@
 #########################################################
 # secret engine name (vault_name): vault
 # secret engine type: kv
-# secret name: variable kafka-server_vault_id, default '{{ ansible_fqdn | replace('.', '-') }}'
+# secret name: variable vault_vault_id, default '{{ ansible_fqdn | replace('.', '-') }}'
 
 # Validate variables
 - name: Validate required variables for action.
@@ -33,9 +33,8 @@
 
 # Create secret_engine if it does not exist
 - name: "Create Vault secret engine for {{ _secret_engine_name }}..."
-  ansible.builtin.include_role:
-    name: vault
-    tasks_from: secret_engine.yml
+  ansible.builtin.include_tasks:
+    file: roles/vault/tasks/secret_engine/secret_engine.yml
   vars:
     action: create_secret_engine
     secret_engine_name: "{{ _secret_engine_name }}"
@@ -56,9 +55,8 @@
 
 # Store usernames and passwords in Hashicorp Vault.
 - name: Store secrets and configuration data in Vault...
-  ansible.builtin.include_role:
-    name: vault
-    tasks_from: secrets.yml
+  ansible.builtin.include_tasks:
+    file: roles/vault/tasks/secrets/create_secret.yml
   vars:
     action: create_secret
     secret_engine_name: "{{ _secret_engine_name }}"
