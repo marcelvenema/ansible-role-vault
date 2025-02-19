@@ -1,5 +1,9 @@
 ---
 
+#########################################################
+## Main module for Hashicorp Vault Ansible role        ##
+#########################################################
+
 # Show message
 - name: Show action message
   debug:
@@ -13,8 +17,13 @@
     fail_msg: "The action '{{ action }}' is not in the list of valid actions..."
     quiet: true
 
-# -------------------------------------------------------
+# TODO: Send message to Kafka bus
+- name: Publish message to Kafka bus...
+  ansible.builtin.debug:
+    msg: "TODO: Publish message to Kafka bus..."
+  when: kafka_bootstrap_servers is defined 
 
+# -------------------------------------------------------
 - name: Start install action...
   ansible.builtin.include_tasks: install.yml
   when: action == "install"
@@ -82,26 +91,26 @@
 
   # policies
 - name: Start get_policy action...
-  ansible.builtin.include_tasks: policies.yml
+  ansible.builtin.include_tasks: policies/policies.yml
   when: action == "get_policy"
 
 - name: Start create_policy action...
-  ansible.builtin.include_tasks: policies.yml
+  ansible.builtin.include_tasks: policies/policies.yml
   when: action == "create_policy"
 
 - name: Start destroy_policy action...
-  ansible.builtin.include_tasks: policies.yml
+  ansible.builtin.include_tasks: policies/policies.yml
   when: action == "destroy_policy"
 
   # approles
 - name: Start get_approle action...
-  ansible.builtin.include_tasks: approles.yml
+  ansible.builtin.include_tasks: approles/approles.yml
   when: action == "get_approle"
 
 - name: Start create_approle action...
-  ansible.builtin.include_tasks: approles.yml
+  ansible.builtin.include_tasks: approles/approles.yml
   when: action == "create_approle"
 
 - name: Start destroy_approle action...
-  ansible.builtin.include_tasks: approles.yml
+  ansible.builtin.include_tasks: approles/approles.yml
   when: action == "destroy_approle"

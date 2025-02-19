@@ -1,7 +1,7 @@
 ---
 
 #########################################################
-## Get status                                          ##
+## Set action                                          ##
 #########################################################
 # If action variable is not defined, gather status of the service
 # If service not installed, set action to install. 
