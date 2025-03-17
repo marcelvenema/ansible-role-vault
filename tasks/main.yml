@@ -24,6 +24,7 @@
   when: kafka_bootstrap_servers is defined 
 
 # -------------------------------------------------------
+# Install, uninstall, configure, update
 - name: Start install action...
   ansible.builtin.include_tasks: install.yml
   when: action == "install"
@@ -40,6 +41,8 @@
   ansible.builtin.include_tasks: update.yml
   when: action == "update"
 
+# -------------------------------------------------------
+# Start, Stop, Unseal
 - name: Start start action...
   ansible.builtin.include_tasks: administration.yml
   when: action == "start"
@@ -66,7 +69,6 @@
   ansible.builtin.include_tasks: secret_engine/secret_engine.yml
   when: action == "destroy_secret_engine"
 
-
 # -------------------------------------------------------
 # secrets
 - name: Start get_secret action...
@@ -78,7 +80,7 @@
   when: action == "create_secret"
 
 - name: Start destroy_secret action...
-  ansible.builtin.include_tasks: secrets/secrets.yml
+  ansible.builtin.include_tasks: secrets/destroy_secret.yml
   when: action == "destroy_secret"
 
 - name: Start import_secrets action...
@@ -86,10 +88,11 @@
   when: action == "import_secrets"
 
 - name: Start export_secrets action...
-  ansible.builtin.include_tasks: secrets/secrets.yml
+  ansible.builtin.include_tasks: secrets/export_secrets.yml
   when: action == "export_secrets"
 
-  # policies
+# -------------------------------------------------------
+# policies
 - name: Start get_policy action...
   ansible.builtin.include_tasks: policies/policies.yml
   when: action == "get_policy"
@@ -102,7 +105,8 @@
   ansible.builtin.include_tasks: policies/policies.yml
   when: action == "destroy_policy"
 
-  # approles
+# -------------------------------------------------------
+# approles
 - name: Start get_approle action...
   ansible.builtin.include_tasks: approles/approles.yml
   when: action == "get_approle"
