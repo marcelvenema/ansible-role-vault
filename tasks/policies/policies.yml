@@ -73,7 +73,7 @@
     - name: Create Hashicorp Vault policy
       ansible.builtin.uri:
         url: "{{ vault_address }}/v1/sys/policies/acl/{{ vault_policy_name }}_policy"
-        validate_certs: false 
+        validate_certs: "{{ vault_validate_certs }}" 
         method: PUT
         status_code: 204
         headers:
@@ -86,7 +86,7 @@
     - name: Associate Vault policy to AppRole
       ansible.builtin.uri:
         url: "{{ vault_address }}/v1/auth/approle/role/{{ vault_policy_name }}_role"
-        validate_certs: false 
+        validate_certs: "{{ vault_validate_certs }}" 
         method: POST
         status_code: 204
         headers:
