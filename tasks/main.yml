@@ -84,7 +84,7 @@
   when: action == "destroy_secret"
 
 - name: Start import_secrets action...
-  ansible.builtin.include_tasks: secrets/secrets.yml
+  ansible.builtin.include_tasks: secrets/import_secrets.yml
   when: action == "import_secrets"
 
 - name: Start export_secrets action...

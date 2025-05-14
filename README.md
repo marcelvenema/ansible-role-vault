@@ -132,8 +132,8 @@ variables:<br>
 ```
 
 
-action: **import_secret**<br>
-Import secret from Vault.<br>
+action: **import_secrets**<br>
+Import secret from file into Vault.<br>
 variables:<br>
 <kbd>vault_address</kbd> : URL to the Vault address, e.g., `http://localhost:8200`.<br>
 <kbd>vault_token</kbd> : Token for Vault access.<br>
@@ -144,14 +144,47 @@ variables:<br>
 ```
 
 
-action: **export_secret**<br>
-Import secret from Vault.<br>
+action: **export_secrets**<br>
+Export secrets from Vault to file.<br>
+This action will get secrets from the Vault and stores it into an encrypted file.<br>
+Use `secret_engine_name` and `secret_name` for single secret values. Use `secrets` for multiple secret values.<br> 
 variables:<br>
 <kbd>vault_address</kbd> : URL to the Vault address, e.g., `http://localhost:8200`.<br>
 <kbd>vault_token</kbd> : Token for Vault access.<br>
 <kbd>secret_engine_name</kbd> : Path where the secret is stored.<br>
+<kbd>secret_name</kbd> : Name of secret.<br>
+<kbd>secrets</kbd> : Path where the secret is stored.<br>
 
 ```
+- name: Export secrets from Vault
+  hosts: localhost
+  vars:
+    vault_address: "{{ lookup('ansible.builtin.env', 'VAULT_ADDR', default=Undefined) }}"
+    vault_token: "{{ lookup('ansible.builtin.env', 'VAULT_TOKEN', default=Undefined) }}"
+
+  tasks:
+  - name: Export secrets from Vault
+    ansible.builtin.include_role:
+      name: vault
+    vars:
+      action : export_secrets
+      # vault_address : "" # set in environment variable
+      # vault_token   : "" # set in environment variable
+      # secret_engine_name : # set in secrets variable
+      # secret_name        : # set in secrets variable
+      filename : "secrets_export1"
+      secrets  : |
+        [
+          {
+            "secret_engine_name": "cisco-callmanager",
+            "secret_name": "localhost-localdomain",
+            "secret_data": ""
+          },
+          {
+            "secret_engine_name": "hashicorp-vault",
+            "secret_name": "localhost-localdomain",
+            "secret_data": ""
+          }]
 
 ```
 
@@ -163,9 +196,24 @@ Create secret engine in Vault.<br>
 variables:<br>
 <kbd>vault_address</kbd> : URL to the Vault address, e.g., `http://localhost:8200`.<br>
 <kbd>vault_token</kbd> : Token for Vault access.<br>
-<kbd>secret_engine_name</kbd> : Path where the secret is stored.<br>
+<kbd>filename</kbd> : Path where the secret is stored.<br>
 
 ```
+- name: Import secrets from Vault
+  hosts: localhost
+  vars:
+    vault_address: "{{ lookup('ansible.builtin.env', 'VAULT_ADDR', default=Undefined) }}"
+    vault_token: "{{ lookup('ansible.builtin.env', 'VAULT_TOKEN', default=Undefined) }}"
+
+  tasks:
+  - name: Import secrets from Vault
+    ansible.builtin.include_role:
+      name: vault
+    vars:
+      action : import_secrets
+      # vault_address : "" # set in environment variable
+      # vault_token   : "" # set in environment variable
+      filename : "secrets_export1.zip"
 
 ```
 
