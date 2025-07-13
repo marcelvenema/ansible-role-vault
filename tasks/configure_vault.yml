@@ -20,12 +20,12 @@
 # Register variable (_secret_engine_name)
 - name: Register variable (secret_engine_name)...
   ansible.builtin.set_fact:
-   _secret_engine_name: "{{ vault_secret_engine_name | default('hashicorp-vault') }}"
+   _secret_engine_name: "{{ vault_vars.secrets.secret_engine_name | default('hashicorp-vault') }}"
 
 # Register variable (_secret_name)
 - name: Register variable (secret_name)...
   ansible.builtin.set_fact:
-    _secret_name: "{{ vault_vault_id | default( ansible_fqdn | replace('.', '-') ) }}"
+    _secret_name: "{{ vault_vars.secrets.vault_id | default( ansible_fqdn | replace('.', '-') ) }}"
 
 #########################################################
 ## Secret Engine                                       ##
@@ -38,7 +38,7 @@
   vars:
     action: create_secret_engine
     secret_engine_name: "{{ _secret_engine_name }}"
-    secret_engine_description: "{{ vault_secret_engine_description | default('Secrets for Hashicorp Vault.') }}"
+    secret_engine_description: "{{ vault_vars.secrets.secret_engine_description | default('Secrets for Hashicorp Vault.') }}"
     secret_engine_type: "kv"
 
 #########################################################
@@ -46,11 +46,11 @@
 #########################################################
 
 # Declare variable _secret_keyvalue
-# nexus_repository_username: '{{ nexus_repository_username | default('change_me') }}'
+# <secret>: '{{ <secret> | default('change_me') }}'
 - name: Register variable (secret_keyvalue)...
   ansible.builtin.set_fact:
     _secret_keyvalue: |
-      vault_repository_url : {{ vault_repository_url | default('change_me') }}
+      repository_url : {{ vault_vars.container.repository_url | default('change_me') }}
       vault_address : {{ vault_address | default('change_me') }}
 
 # Store usernames and passwords in Hashicorp Vault.

@@ -8,16 +8,18 @@
       ansible.builtin.include_tasks:
         file: tasks/install.yml
       vars:
-        # vault_repository_url: "docker.io/hashicorp/vault"
-        # vault_repository_url : "https://releases.hashicorp.com/vault/1.15.5/vault_1.15.5_linux_amd64.zip"
-        vault_repository_url: "http://192.168.1.1:8081/repository/files/Hashicorp/Vault/vault.1.15.tar"
-        # vault_repository_url: "/repository/vault_1.15.0.tar"
-        # vault_repository_tag can be a tag or a version. example: 1.15.0 or 1.15.0-beta1. default is 'latest'.
-        # vault_repository_tag: 1.14.8
-        vault_repository_checksum: "8a67e75ca000da04c5b1bcf3430fd89b8c4868ae52fa8cff329435dc72a77b56"
-        # vault_repository_checksum_algorithm: "sha256"
-        vault_repository_checksum_algorithm: "sha256"
-        
-        # data_dir : base folder to store data. example: "/data/vault" # default is /data/vault
-        vault_data_dir: "/data/vault"
-        vault_platform : "podman"
+        vault:
+          containers:
+            container:
+              name: "vault"
+              # repository_url: "docker.io/hashicorp/vault"
+              platform: "podman"
+              # repository_url : "https://releases.hashicorp.com/vault/1.15.5/vault_1.15.5_linux_amd64.zip"
+              repository_url: "http://192.168.1.1:8081/repository/files/Hashicorp/Vault/vault.1.15.tar"
+              # repository_url: "/repository/vault_1.15.0.tar"
+              # repository_tag can be a tag or a version. example: 1.15.0 or 1.15.0-beta1. default is 'latest'.
+              # repository_tag: 1.14.8
+              repository_checksum: "8a67e75ca000da04c5b1bcf3430fd89b8c4868ae52fa8cff329435dc72a77b56"
+              # repository_checksum_algorithm: "sha256"
+              repository_checksum_algorithm: "sha256"
+      

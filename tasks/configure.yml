@@ -19,7 +19,7 @@
 - name: Gather Vault status information...
   ansible.builtin.uri:
     url: "{{ vault_address }}/v1/sys/init"
-    validate_certs: "{{ vault_validate_certs }}"
+    validate_certs: "{{ vault_vars.application.validate_certs }}"
     method: GET
     return_content: yes
   register: vault_init_status
@@ -43,7 +43,7 @@
     - name: Initialize Vault server...
       ansible.builtin.uri:
         url: "{{ vault_address }}/v1/sys/init"
-        validate_certs: "{{ vault_validate_certs }}"
+        validate_certs: "{{ vault_vars.application.validate_certs }}"
         method: POST
         body_format: json
         body:
@@ -112,7 +112,7 @@
 - name: Enable Hashicorp Vault AppRole...
   ansible.builtin.uri:
     url: "{{ vault_address }}/v1/sys/auth/approle"
-    validate_certs: "{{ vault_validate_certs }}" 
+    validate_certs: "{{ vault_vars.application.validate_certs }}" 
     method: POST
     status_code: 204
     headers:
@@ -126,7 +126,7 @@
 - name: Enable Hashicorp Vault Username & Password...
   ansible.builtin.uri:
     url: "{{ vault_address }}/v1/sys/auth/userpass"
-    validate_certs: "{{ vault_validate_certs }}" 
+    validate_certs: "{{ vault_vars.application.validate_certs }}" 
     method: POST
     status_code: 204
     headers:
@@ -144,7 +144,7 @@
 - name: Enable Hashicorp Vault PKI Secrets Engine...
   ansible.builtin.uri:
     url: "{{ vault_address }}/v1/sys/mounts/pki"
-    validate_certs: "{{ vault_validate_certs }}" 
+    validate_certs: "{{ vault_vars.application.validate_certs }}" 
     method: POST
     status_code: 204
     headers:

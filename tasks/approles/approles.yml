@@ -49,6 +49,15 @@
         - vault_policy_name
         - vault_policy_rules
 
+    # Show information message
+    - name: "This part is not (yet) implemented."
+      ansible.builtin.debug:
+        msg: "This part is not (yet) implemented."
+
+    # Stop playbook
+    - name: Stop playbook
+      ansible.builtin.meta: end_play
+
 #########################################################
 ## Create Vault AppRole                                ##
 #########################################################
@@ -56,6 +65,7 @@
 - name: Create Vault AppRole
   when: action == "create_approle"
   block:
+
     # Validate local variables
     - name: Validate variables for Vault reate_approle action.
       ansible.builtin.assert:
@@ -68,6 +78,15 @@
         - vault_policy_name
         - vault_policy_rules
 
+    # Show information message
+    - name: "This part is not (yet) implemented."
+      ansible.builtin.debug:
+        msg: "This part is not (yet) implemented."
+
+    # Stop playbook
+    - name: Stop playbook
+      ansible.builtin.meta: end_play
+
 #########################################################
 ## Destroy Vault AppRole                               ##
 #########################################################
@@ -75,18 +94,27 @@
 - name: Destroy Vault AppRole
   when: action == "destroy_approle"
   block:
-  # Validate local variables
-  - name: Validate variables for Vault destroy_approle action.
-    ansible.builtin.assert:
-      that: "{{ varitem }} is defined"
-      fail_msg: "Required variable '{{ varitem }}' has not been provided."
-      quiet: true
-    loop_control:
-      loop_var: varitem
-    loop: 
-      - vault_policy_name
-      - vault_policy_rules
+    
+    # Validate local variables
+    - name: Validate variables for Vault destroy_approle action.
+      ansible.builtin.assert:
+        that: "{{ varitem }} is defined"
+        fail_msg: "Required variable '{{ varitem }}' has not been provided."
+        quiet: true
+      loop_control:
+        loop_var: varitem
+      loop: 
+        - vault_policy_name
+        - vault_policy_rules
 
+    # Show information message
+    - name: "This part is not (yet) implemented."
+      ansible.builtin.debug:
+        msg: "This part is not (yet) implemented."
+
+    # Stop playbook
+    - name: Stop playbook
+      ansible.builtin.meta: end_play
 
 #########################################################
 ## Post-actions                                        ##

@@ -49,6 +49,15 @@
         - vault_policy_name
         - vault_policy_rules
 
+    # Show information message
+    - name: "This part is not (yet) implemented."
+      ansible.builtin.debug:
+        msg: "This part is not (yet) implemented."
+
+    # Stop playbook
+    - name: Stop playbook
+      ansible.builtin.meta: end_play
+
 #########################################################
 ## Create policy                                       ##
 #########################################################
@@ -73,7 +82,7 @@
     - name: Create Hashicorp Vault policy
       ansible.builtin.uri:
         url: "{{ vault_address }}/v1/sys/policies/acl/{{ vault_policy_name }}_policy"
-        validate_certs: "{{ vault_validate_certs }}" 
+        validate_certs: "{{ vault_vars.application.validate_certs }}" 
         method: PUT
         status_code: 204
         headers:
@@ -86,7 +95,7 @@
     - name: Associate Vault policy to AppRole
       ansible.builtin.uri:
         url: "{{ vault_address }}/v1/auth/approle/role/{{ vault_policy_name }}_role"
-        validate_certs: "{{ vault_validate_certs }}" 
+        validate_certs: "{{ vault_vars.application.validate_certs }}" 
         method: POST
         status_code: 204
         headers:
@@ -121,6 +130,15 @@
       loop: 
         - vault_policy_name
         - vault_policy_rules
+
+    # Show information message
+    - name: "This part is not (yet) implemented."
+      ansible.builtin.debug:
+        msg: "This part is not (yet) implemented."
+
+    # Stop playbook
+    - name: Stop playbook
+      ansible.builtin.meta: end_play
 
 #########################################################
 ## Post-actions                                        ##

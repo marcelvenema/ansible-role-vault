@@ -26,7 +26,7 @@
 - name: Check if vault is sealed
   ansible.builtin.uri:
     url: "{{ vault_address }}/v1/sys/health"
-    validate_certs: "{{ vault_validate_certs | default(true) }}"
+    validate_certs: "{{ vault_vars.application.validate_certs | default(true) }}"
     status_code: 200,429,472,501,503
   register: vault_health_response
 
@@ -34,7 +34,7 @@
 - name: Unseal Vault
   ansible.builtin.uri:
     url: "{{ vault_address }}/v1/sys/unseal"
-    validate_certs: "{{ vault_validate_certs | default(true) }}"
+    validate_certs: "{{ vault_vars.application.validate_certs | default(true) }}"
     method: PUT
     body:
       key: "{{ item }}"

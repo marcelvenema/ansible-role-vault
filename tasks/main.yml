@@ -17,6 +17,18 @@
     fail_msg: "The action '{{ action }}' is not in the list of valid actions..."
     quiet: true
 
+# Merge role defaults with vault, include nested variables
+# Nested merge does not work well, so use workaround to combine variables
+- name: Gather defaults (vault)...
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/defaults/main.yml"
+    name: vault_defaults
+
+# Merge role defaults, include nested variables
+- name: Merge role defaults with collected variables...
+  ansible.builtin.set_fact:
+    vault_vars: "{{ vault_defaults.vault | combine( vault | default({}), recursive=true ) }}"
+
 # TODO: Send message to Kafka bus
 - name: Publish message to Kafka bus...
   ansible.builtin.debug:
@@ -84,7 +96,7 @@
   when: action == "destroy_secret"
 
 - name: Start import_secrets action...
-  ansible.builtin.include_tasks: secrets/secrets.yml
+  ansible.builtin.include_tasks: secrets/import_secrets.yml
   when: action == "import_secrets"
 
 - name: Start export_secrets action...

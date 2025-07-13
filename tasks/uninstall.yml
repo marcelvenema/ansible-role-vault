@@ -23,21 +23,21 @@
 ## Uninstall via podman                                ##
 #########################################################
 
-- name: "Uninstall {{ vault_container_name }} on podman"
+- name: "Uninstall {{ vault_vars.container.name }} on podman"
   when: platform == "podman"
   block:
 
     # Check if container is present
     - name: Check if container is present
       containers.podman.podman_container_info:
-        name: "{{ vault_container_name }}"
+        name: "{{ vault_vars.container.name }}"
       register: pod_info
       ignore_errors: true
 
     # Remove container
-    - name: "Remove container {{ vault_container_name }}"
+    - name: "Remove container {{ vault_vars.container.name }}"
       containers.podman.podman_container:
-        name: "{{ vault_container_name }}"
+        name: "{{ vault_vars.container.name }}"
         state: absent
       when: pod_info is defined
 
@@ -45,7 +45,7 @@
 ## Uninstall via kubernetes                            ##
 #########################################################
 
-- name: "Uninstall {{ vault_container_name }} on kubernetes"
+- name: "Uninstall {{ vault_vars.container.name }} on kubernetes"
   when: platform == "kubernetes"
   block:
 
@@ -80,12 +80,12 @@
 #########################################################
 
 # Start destroy_volumes from podman role
-- name: "Destroy container data folders for {{ vault_container_name }}..."
+- name: "Destroy container data folders for {{ vault_vars.container.name }}..."
   ansible.builtin.include_role:
     name: podman
   vars:
     action: destroy_volumes
-    container_volumes: "{{ vault_container_volumes }}"
+    container_volumes: "{{ vault_vars.container.volumes }}"
   when:
     - platform == "podman"
     - keep_data == false
@@ -94,6 +94,8 @@
 ## Uninstall users/groups                              ##
 #########################################################
 
+# TODO
+
 #########################################################
 ## Post-uninstall                                      ##
 #########################################################
@@ -101,7 +103,5 @@
 # Unset variables
 - name: Unset variables
   set_fact:
-    vault_container_name: null
-    vault_container_volumes: null
     keep_data: null
 

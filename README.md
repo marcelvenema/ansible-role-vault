@@ -9,6 +9,53 @@ Ansible role for installation, configuration, usage, and management of HashiCorp
 Ansible role Vault : [Design](docs/DESIGN.md)  |  [Examples](examples)  |  [Test](molecule)  |  [Issues]()  |<br>
 Latest version:
 
+# Role variables
+Available variables are listed below, along with default values (see `defaults/main.yml`):<br>
+
+```bash
+vault: 
+  # application contains the configuration for the application server.
+  application:
+    # validate_certs configures if the certificate of the application server should be validated. example: true or false. 
+    validate_certs: false
+  # container contains the configuration for the container used to run Hashicorp Vault.
+  container:  
+    # name is the name of the container used in podman or docker. example: "vault".
+    name: "vault"
+    # platform is the platform used for the container. example: "podman", "kubernetes", "docker" or "autodetect".
+    platform: "podman"
+    # uninstall indicates if the container should be uninstalled. example: true or false. Default is false.
+    uninstall: false
+    # repository_url can be a URL to a docker image or a tar file. example: "https://docker.io/sonatype/nexus3" or "/tmp/nexus3.67.1.tar", "https://192.168.1.1/repo/nexus.tar".
+    repository_url: "docker.io/hashicorp/vault"
+    # repository_tag is a tag of the image or a version of the tar file. example: "3.67.1" or "latest" Default is "latest".
+    # repository_tag: "latest"
+    # repository_checksum can be a checksum of the container file. example: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" or "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".
+    # repository_checksum: ""
+    # repository_checksum_algorithm can be a checksum algorithm of the container file. example: "sha256", sha512", "md5".
+    # repository_checksum_algorithm: "sha256"
+    # ports is a list of ports used in the container. example: ["8200:8200"] or ["8200:8200", "8201:8201"].
+    ports:
+      - "8200:8200"
+    # container_volumes is a list of volumes used in the container. example: ["vault/config:/vault/config:Z"] or ["vault/config:/vault/config:Z", "vault/file:/vault/file:Z"].
+    volumes: 
+      - "vault/logs:/vault/logs:Z"
+      - "vault/file:/vault/file:Z"
+      - "vault/config:/vault/config:Z"
+    # container_env is a list of environment variables used in the container.
+    environment:
+      SKIP_SETCAP: true
+  # secrets contains the configuration for the vault used for storing secrets and configuration data.
+  secrets:
+    # vault_id is the unique id of the vault used for storing secrets and configuration data. default is {{ansible_fqdn }}.
+    # vault_id: ""
+    # secret_engine_name is the name of the vault used for storing secrets and configuration data. example: "nexus-repository".
+    secret_engine_name: "hashicorp-vault"
+    # <container_name>_secret_engine_description is the description of the vault used for storing secrets and configuration data. example: "Secrets for Sonatype Nexus Repository.".
+    secret_engine_description: "Secrets for Hashicorp Vault."
+
+```
+
 # Actions:
 
 <table style="border:0px; width:100%">
@@ -132,8 +179,8 @@ variables:<br>
 ```
 
 
-action: **import_secret**<br>
-Import secret from Vault.<br>
+action: **import_secrets**<br>
+Import secret from file into Vault.<br>
 variables:<br>
 <kbd>vault_address</kbd> : URL to the Vault address, e.g., `http://localhost:8200`.<br>
 <kbd>vault_token</kbd> : Token for Vault access.<br>
@@ -144,14 +191,47 @@ variables:<br>
 ```
 
 
-action: **export_secret**<br>
-Import secret from Vault.<br>
+action: **export_secrets**<br>
+Export secrets from Vault to file.<br>
+This action will get secrets from the Vault and stores it into an encrypted file.<br>
+Use `secret_engine_name` and `secret_name` for single secret values. Use `secrets` for multiple secret values.<br> 
 variables:<br>
 <kbd>vault_address</kbd> : URL to the Vault address, e.g., `http://localhost:8200`.<br>
 <kbd>vault_token</kbd> : Token for Vault access.<br>
 <kbd>secret_engine_name</kbd> : Path where the secret is stored.<br>
+<kbd>secret_name</kbd> : Name of secret.<br>
+<kbd>secrets</kbd> : Path where the secret is stored.<br>
 
 ```
+- name: Export secrets from Vault
+  hosts: localhost
+  vars:
+    vault_address: "{{ lookup('ansible.builtin.env', 'VAULT_ADDR', default=Undefined) }}"
+    vault_token: "{{ lookup('ansible.builtin.env', 'VAULT_TOKEN', default=Undefined) }}"
+
+  tasks:
+  - name: Export secrets from Vault
+    ansible.builtin.include_role:
+      name: vault
+    vars:
+      action : export_secrets
+      # vault_address : "" # set in environment variable
+      # vault_token   : "" # set in environment variable
+      # secret_engine_name : # set in secrets variable
+      # secret_name        : # set in secrets variable
+      filename : "secrets_export1"
+      secrets  : |
+        [
+          {
+            "secret_engine_name": "cisco-callmanager",
+            "secret_name": "localhost-localdomain",
+            "secret_data": ""
+          },
+          {
+            "secret_engine_name": "hashicorp-vault",
+            "secret_name": "localhost-localdomain",
+            "secret_data": ""
+          }]
 
 ```
 
@@ -163,9 +243,24 @@ Create secret engine in Vault.<br>
 variables:<br>
 <kbd>vault_address</kbd> : URL to the Vault address, e.g., `http://localhost:8200`.<br>
 <kbd>vault_token</kbd> : Token for Vault access.<br>
-<kbd>secret_engine_name</kbd> : Path where the secret is stored.<br>
+<kbd>filename</kbd> : Path where the secret is stored.<br>
 
 ```
+- name: Import secrets from Vault
+  hosts: localhost
+  vars:
+    vault_address: "{{ lookup('ansible.builtin.env', 'VAULT_ADDR', default=Undefined) }}"
+    vault_token: "{{ lookup('ansible.builtin.env', 'VAULT_TOKEN', default=Undefined) }}"
+
+  tasks:
+  - name: Import secrets from Vault
+    ansible.builtin.include_role:
+      name: vault
+    vars:
+      action : import_secrets
+      # vault_address : "" # set in environment variable
+      # vault_token   : "" # set in environment variable
+      filename : "secrets_export1.zip"
 
 ```
 

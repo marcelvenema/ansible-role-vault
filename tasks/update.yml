@@ -4,17 +4,6 @@
 ## Update                                              ##
 #########################################################
 
-# Validate global variables
-- name: Validate global variables for Hashicorp Vault update module.
-  ansible.builtin.assert:
-    that: "varitem is defined"
-    fail_msg: "Required variable '{{ varitem }}' has not been provided."
-    quiet: true
-  loop_control:
-    loop_var: varitem
-  loop:
-    - vault_repository_url
-
 #########################################################
 ## Pre-installation platform check                     ##
 #########################################################
@@ -41,24 +30,11 @@
         name: podman
       vars:
         action: "update_container"
-        container_name: "{{vault_container_name}}"
-        container_repository_url: "{{ vault_repository_url }}"
+        container_name: "{{vault_vars.container.name}}"
+        container_repository_url: "{{ vault_vars.container.repository_url }}"
 
 #########################################################
 ## Post-actions                                        ##
 #########################################################
 
 # Unset variables
-- name: Unset variables...
-  ansible.builtin.set_fact:
-    vault_repository_url: null
-    vault_repository_tag: null
-    vault_repository_checksum: null
-    vault_repository_checksum_algorithm: null
-    vault_container_name: null
-    vault_container_ports: null
-    vault_container_volumes: null
-    vault_container_env: null
-    vault_container_user: null
-    vault_container_user_details: null
-    vault_container_user_uid: null
