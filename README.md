@@ -88,7 +88,9 @@ variables:<br>
      - role: vault
          vars:
              action: install
-             vault_repository_url: docker.io/hashicorp/vault
+             vault:
+               container:
+                 repository_url: docker.io/hashicorp/vault
 
 ```
 
@@ -420,8 +422,9 @@ Example for installing Vault:
                 name: vault
                 vars:
                     action: install
-                    vault_version: latest
-                    vault_binary_url: "https://releases.hashicorp.com/vault/latest/vault_latest_linux_amd64.zip"
+                    vault:
+                      container:
+                        respository_url: "https://releases.hashicorp.com/vault/latest/vault_latest_linux_amd64.zip"
 ```
 
 ## Configuration

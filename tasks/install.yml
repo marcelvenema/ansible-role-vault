@@ -1,13 +1,8 @@
 ---
 
 #########################################################
-## Gather information                                  ##
+## Vault install action                                ##
 #########################################################
-
-# Set action_parameters variable to parameter list in actions where key is equal to action
-- name: "Gather variables for action ({{ action }})..."
-  set_fact:
-    action_parameters: "{{ (actions | map('dict2items') | map('first') | selectattr('key', 'equalto', action) | map(attribute='value') | first).parameters }}"
 
 #########################################################
 ## Pre-installation uninstall                          ##
@@ -28,7 +23,7 @@
   block:
 
     # Check if podman is detected
-    - name: Gather information...
+    - name: Gather information (podman)...
       ansible.builtin.assert:
         that: '"podman" in ansible_facts.packages'
         fail_msg: "Podman is not installed. Please install Podman first. Cannot continue..."
@@ -49,20 +44,20 @@
     #####################################################
     ## Vault SSL certificate                           ##
     #####################################################
-        
+
     # Create temp folder for SSL certificate
     - name: Create temporary folder...
       ansible.builtin.file:
         path: "/tmp/vault/certs"
         state: directory
-  
+
     # Create SSL certificate
     - name: Create SSL certificate for Hashicorp Vault...
       ansible.builtin.include_tasks:
         file: create_ssl_certificate.yml
       vars:
-        destination_folder: "/tmp/vault/certs" 
- 
+        destination_folder: "/tmp/vault/certs"
+
     # Copy SSL certificate to container
     - name: Copy SSL certificate to container volume...
       ansible.builtin.include_role:
@@ -81,8 +76,8 @@
 
     #####################################################
     ## Vault configuration                             ##
-    #####################################################    
-    
+    #####################################################
+
     # Create temp folder for configuration file
     - name: Create temporary folder...
       ansible.builtin.file:
@@ -129,13 +124,13 @@
     #####################################################
 
     # Import container
-    - name: "Install {{ vault_container_name }} container on podman"
+    - name: "Install {{ vault_vars.container.name }} container on podman"
       ansible.builtin.include_role:
         name: podman
       vars:
         action: import_container
         container_repository_url: "{{ vault_vars.container.repository_url }}"
-        container_repository_tag: "{{ vault_vars.container.repository_tag | default('latest') }}"
+        container_repository_tag: "{{ vault_vars.container.repository_tag | default(omit) }}"
         container_repository_checksum: "{{ vault_vars.container.repository_checksum | default(omit) }}"
         container_repository_checksum_algorithm: "{{ vault_vars.container.repository_checksum_algorithm | default(omit) }}"
         container_name: "{{ vault_vars.container.name }}"
@@ -151,7 +146,7 @@
 #########################################################
 
 - name: Install Vault on Kubernetes...
-  when: platform == "kubernetes"
+  when: vault_vars.container.platform == "kubernetes"
   block:
 
     # Debug message
@@ -173,7 +168,7 @@
 #########################################################
 
 - name: Install Vault on host...
-  when: platform == "host"
+  when: vault_vars.container.platform == "host"
   block:
 
     # Show information message
@@ -203,3 +198,7 @@
 #########################################################
 ## Post-install                                        ##
 #########################################################
+
+# Unset variables
+#- name: Unset variables...
+#  ansible.builtin.set_fact:

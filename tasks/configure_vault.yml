@@ -5,7 +5,7 @@
 #########################################################
 # secret engine name (vault_name): vault
 # secret engine type: kv
-# secret name: variable vault_vault_id, default '{{ ansible_fqdn | replace('.', '-') }}'
+# secret name: default '{{ ansible_fqdn | replace('.', '-') }}'
 
 # Validate variables
 - name: Validate required variables for action.
@@ -25,7 +25,7 @@
 # Register variable (_secret_name)
 - name: Register variable (secret_name)...
   ansible.builtin.set_fact:
-    _secret_name: "{{ vault_vars.secrets.vault_id | default( ansible_fqdn | replace('.', '-') ) }}"
+    _secret_name: "{{ vault_vars.secrets.secret_name | default( ansible_fqdn | replace('.', '-') ) }}"
 
 #########################################################
 ## Secret Engine                                       ##
