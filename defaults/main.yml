@@ -4,19 +4,32 @@
 ## Hashicorp Vault Ansible role defaults               ##
 #########################################################
 
+# default role variables for the vault role
 vault:
+  # address is the URL to connect to the Vault server.
+  address: ""
+  # username is the username to connect to the Vault server.
+  username: ""
+  # password is the password to connect to the Vault server.
+  password: ""
+  # token is the token used to authenticate to the Kafka server.
+  token: ""
+
+  # metadata contains information about the role.
   metadata:
     name: "vault"
     description: "Hashicorp Vault Ansible role."
     version: "1.0.0"
     maintainer: ""
     maintainer_email: ""
+
   # application contains the configuration for the application server.
   application:
-    # validate_certs configures if the certificate of the application server should be validated. example: true or false. 
+    # validate_certs configures if the certificate of the application server should be validated. example: true or false.
     validate_certs: false
   # container contains the configuration for the container used to run Hashicorp Vault.
-  container:  
+
+  container:
     # name is the name of the container used in podman or docker. example: "vault".
     name: "vault"
     # platform is the platform used for the container. example: "podman", "kubernetes", "docker" or "autodetect".
@@ -34,14 +47,30 @@ vault:
     # ports is a list of ports used in the container. example: ["8200:8200"] or ["8200:8200", "8201:8201"].
     ports:
       - "8200:8200"
-    # container_volumes is a list of volumes used in the container. example: ["vault/config:/vault/config:Z"] or ["vault/config:/vault/config:Z", "vault/file:/vault/file:Z"].
-    volumes: 
+    # volumes is a list of volumes used in the container. example: ["vault/config:/vault/config:Z"] or ["vault/config:/vault/config:Z", "vault/file:/vault/file:Z"].
+    volumes:
       - "vault/logs:/vault/logs:Z"
       - "vault/file:/vault/file:Z"
       - "vault/config:/vault/config:Z"
-    # container_env is a list of environment variables used in the container.
+    # volume_mode is the mode of the volume used in the container. example: "0777" or "0755". Default is "0777".
+    volume_mode: "0777"
+    # environment is a list of environment variables used in the container.
     environment:
       SKIP_SETCAP: true
+    # healthcheck is the command used to check if the container is healthy. example: "curl -f http://localhost:8080/health || exit 1".
+    healthcheck: "wget --no-check-certificate -qO- https://127.0.0.1:8200/v1/sys/health || exit 1"
+    # healthcheck_start is the time to wait before starting the health check. example: "30s".
+    healthcheck_start: "30s"
+    # healthcheck_interval is the interval between health checks. example: "30s".
+    healthcheck_interval: "30s"
+    # healthcheck_timeout is the timeout for the health check. example: "30s".
+    healthcheck_timeout: "30s"
+    # healthcheck_retries is the number of retries for the health check. example: "3".
+    healthcheck_retries: 5
+    
+    # quadlet_options is a list of options used in the container. example: ["Environment=NODE_ENV=production", "HealthCmd='wget --no-verbose --tries=1 --spider http://localhost:8080/api/health || exit 1 '"].
+    # quadlet_options:
+
   # secrets contains the configuration for the vault used for storing secrets and configuration data.
   secrets:
     # secret_name is the unique id of the vault used for storing secrets and configuration data. default is {{ansible_fqdn }}.

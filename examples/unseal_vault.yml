@@ -1,0 +1,14 @@
+---
+
+# Unseal Vault secrets
+- name: Unseal Vault 
+  hosts: localhost
+
+  tasks:
+  - name: Export secrets from Vault
+    ansible.builtin.include_role:
+      name: vault
+    vars:
+      action : unseal
+      vault_address: "https://192.168.29.29:8200"
+      vault_unseal_keys: ["n8FizibQ7edty02PwK7zmwE9CKibfRlSF88Ae0FF6YIO", "ZotbzxjxxRSneBKAbhueIpsqb2scpzfE+X2mIgiWxVEg", "vTve62E5EryKE2BH/Kg+OgOgvFl9/Dj3qDIPiNTSghUv"]

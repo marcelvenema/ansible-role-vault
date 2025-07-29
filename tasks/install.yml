@@ -22,6 +22,11 @@
   when: vault_vars.container.platform == "podman"
   block:
 
+    # Gather installed packages
+    - name: Gather installed packages
+      ansible.builtin.package_facts:
+        manager: auto
+
     # Check if podman is detected
     - name: Gather information (podman)...
       ansible.builtin.assert:
@@ -140,6 +145,12 @@
         container_security_opt: ["label=disable"]
         container_cap_add: IPC_LOCK
         container_env: "{{ vault_vars.container.environment | default(omit) }}"
+        container_healthcheck: "{{ vault_vars.container.healthcheck | default(omit) }}"
+        container_healthcheck_fail: "{{ vault_vars.container.healthcheck_fail | default('none') }}"
+        container_healthcheck_retries: "{{ vault_vars.container.healthcheck_retries | default(omit) }}"
+        container_healthcheck_interval: "{{ vault_vars.container.healthcheck_interval | default(omit) }}"
+        container_healthcheck_timeout: "{{ vault_vars.container.healthcheck_timeout | default(omit) }}"
+        container_healthcheck_start: "{{ vault_vars.container.healthcheck_start | default(omit) }}"
 
 #########################################################
 ## Installation on kubernetes                         ##
